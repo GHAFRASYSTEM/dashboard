@@ -19,31 +19,57 @@ import { Badge } from './ui/badge'
 interface DashboardLayoutProps {
   children: React.ReactNode
   title: string
+  subtitle?: string
   breadcrumbs?: { label: string; href?: string }[]
 }
 
-export function DashboardLayout({ children, title, breadcrumbs = [] }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  title,
+  subtitle,
+  breadcrumbs = [],
+}: DashboardLayoutProps) {
+  const today = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4">
-          <div className="flex items-center gap-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="h-6" />
+        {/* Topbar */}
+        <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-border bg-card/80 backdrop-blur-sm px-5">
+          <div className="flex items-center gap-3">
+            <SidebarTrigger className="-ml-1 size-8 text-muted-foreground hover:text-foreground" />
+            <Separator orientation="vertical" className="h-5 bg-border" />
             <Breadcrumb>
-              <BreadcrumbList>
+              <BreadcrumbList className="text-[13px]">
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+                  <BreadcrumbLink
+                    href="/"
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Home
+                  </BreadcrumbLink>
                 </BreadcrumbItem>
                 {breadcrumbs.map((crumb, index) => (
                   <span key={index} className="contents">
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator className="text-muted-foreground/40" />
                     <BreadcrumbItem>
                       {crumb.href ? (
-                        <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                        <BreadcrumbLink
+                          href={crumb.href}
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {crumb.label}
+                        </BreadcrumbLink>
                       ) : (
-                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                        <BreadcrumbPage className="text-foreground font-medium">
+                          {crumb.label}
+                        </BreadcrumbPage>
                       )}
                     </BreadcrumbItem>
                   </span>
@@ -51,26 +77,47 @@ export function DashboardLayout({ children, title, breadcrumbs = [] }: Dashboard
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-3">
+            {/* Search */}
             <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground/50" />
               <Input
-                placeholder="Search..."
-                className="w-64 bg-secondary border-border pl-9"
+                placeholder="Search anything..."
+                className="h-8 w-56 rounded-lg bg-secondary border-border pl-8 text-[13px] placeholder:text-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-primary/50"
               />
             </div>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="size-5" />
-              <Badge className="absolute -right-1 -top-1 size-5 rounded-full p-0 text-[10px]">
+
+            {/* Notifications */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative size-8 rounded-lg bg-secondary border border-border hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
+            >
+              <Bell className="size-[15px]" />
+              <Badge className="absolute -right-1 -top-1 size-4 rounded-full p-0 text-[9px] font-semibold bg-primary text-primary-foreground border-0">
                 3
               </Badge>
             </Button>
           </div>
         </header>
+
+        {/* Main content */}
         <main className="flex-1 overflow-auto p-6">
+          {/* Page header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
+            <h1 className="text-[22px] font-semibold tracking-tight text-foreground leading-tight">
+              {title}
+            </h1>
+            {subtitle ? (
+              <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
+            ) : (
+              <p className="mt-1 text-[13px] text-muted-foreground">
+                {today} · Welcome back, Admin
+              </p>
+            )}
           </div>
+
           {children}
         </main>
       </SidebarInset>

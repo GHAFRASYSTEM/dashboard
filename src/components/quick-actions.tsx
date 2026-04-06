@@ -1,69 +1,76 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
 import { Link } from 'react-router-dom'
 import {
-  TrendingUp,
-  Home,
   Megaphone,
-  Bell,
-  Users,
+  UserPlus,
+  Home,
   Briefcase,
+  DollarSign,
+  Images,
 } from 'lucide-react'
 
 const actions = [
   {
-    label: 'Post Trend',
-    href: '/trends?action=new',
-    icon: TrendingUp,
-  },
-  {
-    label: 'Add Housing',
-    href: '/housing?action=new',
-    icon: Home,
-  },
-  {
-    label: 'Announcement',
-    href: '/announcements?action=new',
+    label: 'New Announcement',
     icon: Megaphone,
+    href: '/announcements/new',
+    color: 'text-blue-400 bg-blue-400/10',
   },
   {
-    label: 'Send Notification',
-    href: '/notifications?action=new',
-    icon: Bell,
+    label: 'Add Member',
+    icon: UserPlus,
+    href: '/members/new',
+    color: 'text-primary bg-primary/10',
   },
   {
-    label: 'Add Executive',
-    href: '/executives?action=new',
-    icon: Users,
+    label: 'Post Housing',
+    icon: Home,
+    href: '/housing/new',
+    color: 'text-primary bg-primary/10',
   },
   {
     label: 'Post Internship',
-    href: '/internships?action=new',
     icon: Briefcase,
+    href: '/internships/new',
+    color: 'text-amber-400 bg-amber-400/10',
+  },
+  {
+    label: 'Record Payment',
+    icon: DollarSign,
+    href: '/contributions/new',
+    color: 'text-primary bg-primary/10',
+  },
+  {
+    label: 'Upload to Gallery',
+    icon: Images,
+    href: '/gallery/upload',
+    color: 'text-blue-400 bg-blue-400/10',
   },
 ]
 
 export function QuickActions() {
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="text-lg">Quick Actions</CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-3">
+    <div className="rounded-xl border border-border bg-card">
+      <div className="border-b border-border px-5 py-4">
+        <h3 className="text-[14px] font-medium text-foreground">Quick Actions</h3>
+        <p className="mt-0.5 text-[12px] text-muted-foreground">Common tasks</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 p-4">
         {actions.map((action) => (
-          <Button
+          <Link
             key={action.href}
-            variant="secondary"
-            className="h-auto flex-col gap-2 bg-secondary py-4 hover:bg-secondary/80"
-            asChild
+            to={action.href}
+            className="group flex flex-col items-center gap-2.5 rounded-lg border border-border bg-secondary/40 px-3 py-4 text-center transition-all hover:bg-secondary hover:border-border/80"
           >
-            <Link to={action.href}>
-              <action.icon className="size-5" />
-              <span className="text-xs">{action.label}</span>
-            </Link>
-          </Button>
+            <div className={`flex size-9 items-center justify-center rounded-lg ${action.color}`}>
+              <action.icon className="size-4" />
+            </div>
+            <span className="text-[11.5px] font-medium text-muted-foreground leading-tight group-hover:text-foreground transition-colors">
+              {action.label}
+            </span>
+          </Link>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

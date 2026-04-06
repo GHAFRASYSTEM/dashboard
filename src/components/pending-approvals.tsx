@@ -1,83 +1,127 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
-import { Badge } from './ui/badge'
-import { Check, X, ExternalLink } from 'lucide-react'
+import { cn } from '../lib/utils'
+import { Check, X } from 'lucide-react'
 
-interface PendingItem {
+interface Approval {
   id: string
-  title: string
-  type: 'marketing' | 'housing' | 'internship'
-  submittedBy: string
-  submittedAt: string
+  name: string
+  initials: string
+  type: string
+  status: 'pending' | 'review'
+  avatarColor: string
 }
 
-const pendingItems: PendingItem[] = [
+const approvals: Approval[] = [
   {
     id: '1',
-    title: 'Digital Marketing Course',
-    type: 'marketing',
-    submittedBy: 'Tech Academy',
-    submittedAt: '2 hours ago',
+    name: 'Kwame Asante',
+    initials: 'KA',
+    type: 'Membership request',
+    status: 'pending',
+    avatarColor: 'bg-primary/15 text-primary',
   },
   {
     id: '2',
-    title: '2BR Apartment in Downtown',
-    type: 'housing',
-    submittedBy: 'Property Plus',
-    submittedAt: '4 hours ago',
+    name: 'Zara Mensah',
+    initials: 'ZM',
+    type: 'Marketing service',
+    status: 'review',
+    avatarColor: 'bg-info/15 text-info',
   },
   {
     id: '3',
-    title: 'Web Developer Intern',
-    type: 'internship',
-    submittedBy: 'StartUp Inc',
-    submittedAt: '1 day ago',
+    name: 'Femi Okafor',
+    initials: 'FO',
+    type: 'Housing listing',
+    status: 'pending',
+    avatarColor: 'bg-warning/15 text-warning',
+  },
+  {
+    id: '4',
+    name: 'Ama Boateng',
+    initials: 'AB',
+    type: 'Internship application',
+    status: 'pending',
+    avatarColor: 'bg-primary/15 text-primary',
+  },
+  {
+    id: '5',
+    name: 'Kofi Adu',
+    initials: 'KA',
+    type: 'Membership request',
+    status: 'review',
+    avatarColor: 'bg-info/15 text-info',
   },
 ]
 
-const typeLabels = {
-  marketing: { label: 'Marketing', className: 'bg-chart-3/10 text-chart-3' },
-  housing: { label: 'Housing', className: 'bg-chart-2/10 text-chart-2' },
-  internship: { label: 'Internship', className: 'bg-chart-4/10 text-chart-4' },
+const statusBadge: Record<Approval['status'], string> = {
+  pending: 'bg-warning/10 text-warning',
+  review: 'bg-info/10 text-info',
+}
+
+const statusLabel: Record<Approval['status'], string> = {
+  pending: 'Pending',
+  review: 'In review',
 }
 
 export function PendingApprovals() {
   return (
-    <Card className="bg-card border-border">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Pending Approvals</CardTitle>
-        <Badge variant="secondary" className="bg-warning/10 text-warning">
-          {pendingItems.length} pending
-        </Badge>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {pendingItems.map((item) => (
-          <div key={item.id} className="flex items-start justify-between gap-4 rounded-lg border border-border bg-secondary/30 p-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">{item.title}</span>
-                <Badge variant="secondary" className={typeLabels[item.type].className}>
-                  {typeLabels[item.type].label}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                by {item.submittedBy} · {item.submittedAt}
-              </p>
+    <div className="rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div>
+          <h3 className="text-[14px] font-medium text-foreground">Pending Approvals</h3>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">{approvals.length} items awaiting review</p>
+        </div>
+        <button className="text-[12px] font-medium text-primary hover:text-primary/80 transition-colors">
+          Review all →
+        </button>
+      </div>
+
+      <div className="divide-y divide-border">
+        {approvals.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-3 px-5 py-3.5 transition-colors hover:bg-secondary/40"
+          >
+            {/* Avatar */}
+            <div
+              className={cn(
+                'flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold',
+                item.avatarColor
+              )}
+            >
+              {item.initials}
             </div>
-            <div className="flex items-center gap-1">
-              <Button size="icon" variant="ghost" className="size-8 text-muted-foreground hover:text-foreground">
-                <ExternalLink className="size-4" />
-              </Button>
-              <Button size="icon" variant="ghost" className="size-8 text-success hover:text-success hover:bg-success/10">
-                <Check className="size-4" />
-              </Button>
-              <Button size="icon" variant="ghost" className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10">
-                <X className="size-4" />
-              </Button>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] font-medium text-foreground truncate leading-tight">
+                {item.name}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground truncate">{item.type}</p>
+            </div>
+
+            {/* Status badge */}
+            <span
+              className={cn(
+                'hidden shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium sm:block',
+                statusBadge[item.status]
+              )}
+            >
+              {statusLabel[item.status]}
+            </span>
+
+            {/* Action buttons */}
+            <div className="flex shrink-0 items-center gap-1.5">
+              <button className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors hover:bg-primary/20">
+                <Check className="size-3.5" />
+              </button>
+              <button className="flex size-7 items-center justify-center rounded-lg bg-destructive/10 text-destructive transition-colors hover:bg-destructive/20">
+                <X className="size-3.5" />
+              </button>
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

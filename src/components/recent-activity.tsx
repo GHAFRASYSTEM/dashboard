@@ -1,100 +1,92 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { Badge } from './ui/badge'
 import { cn } from '../lib/utils'
 
 interface Activity {
   id: string
-  user: {
-    name: string
-    avatar?: string
-    initials: string
-  }
-  action: string
-  target: string
+  message: string
   time: string
-  type: 'create' | 'update' | 'delete' | 'approve' | 'reject'
+  type: 'member' | 'housing' | 'contribution' | 'internship' | 'marketing' | 'general'
 }
 
 const activities: Activity[] = [
   {
     id: '1',
-    user: { name: 'John Doe', initials: 'JD' },
-    action: 'created',
-    target: 'new housing listing',
-    time: '2 minutes ago',
-    type: 'create',
+    message: 'New member Amara Osei registered',
+    time: '2 min ago',
+    type: 'member',
   },
   {
     id: '2',
-    user: { name: 'Sarah Smith', initials: 'SS' },
-    action: 'approved',
-    target: 'marketing request',
-    time: '15 minutes ago',
-    type: 'approve',
+    message: 'Housing listing #204 was approved',
+    time: '18 min ago',
+    type: 'housing',
   },
   {
     id: '3',
-    user: { name: 'Mike Johnson', initials: 'MJ' },
-    action: 'updated',
-    target: 'announcement',
-    time: '1 hour ago',
-    type: 'update',
+    message: 'Contribution of $2,400 recorded for April',
+    time: '1 hr ago',
+    type: 'contribution',
   },
   {
     id: '4',
-    user: { name: 'Emily Brown', initials: 'EB' },
-    action: 'published',
-    target: 'new trend post',
-    time: '2 hours ago',
-    type: 'create',
+    message: 'Internship at TechCorp Ltd posted',
+    time: '3 hrs ago',
+    type: 'internship',
   },
   {
     id: '5',
-    user: { name: 'Admin User', initials: 'AU' },
-    action: 'added',
-    target: 'new executive',
-    time: '3 hours ago',
-    type: 'create',
+    message: 'Marketing request #31 was declined',
+    time: 'Yesterday',
+    type: 'marketing',
+  },
+  {
+    id: '6',
+    message: 'Gallery: 12 new photos uploaded',
+    time: 'Yesterday',
+    type: 'general',
   },
 ]
 
-const typeColors = {
-  create: 'bg-success/10 text-success',
-  update: 'bg-info/10 text-info',
-  delete: 'bg-destructive/10 text-destructive',
-  approve: 'bg-success/10 text-success',
-  reject: 'bg-destructive/10 text-destructive',
+const dotColor: Record<Activity['type'], string> = {
+  member: 'bg-primary',
+  housing: 'bg-info',
+  contribution: 'bg-warning',
+  internship: 'bg-primary',
+  marketing: 'bg-destructive',
+  general: 'bg-muted-foreground',
 }
 
 export function RecentActivity() {
   return (
-    <Card className="bg-card border-border">
-      <CardHeader>
-        <CardTitle className="text-lg">Recent Activity</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div>
+          <h3 className="text-[14px] font-medium text-foreground">Recent Activity</h3>
+          <p className="mt-0.5 text-[12px] text-muted-foreground">Latest actions across the platform</p>
+        </div>
+        <button className="text-[12px] font-medium text-primary hover:text-primary/80 transition-colors">
+          View all →
+        </button>
+      </div>
+
+      <div className="divide-y divide-border">
         {activities.map((activity) => (
-          <div key={activity.id} className="flex items-center gap-4">
-            <Avatar className="size-9">
-              <AvatarImage src={activity.user.avatar} alt={activity.user.name} />
-              <AvatarFallback className="bg-secondary text-xs">
-                {activity.user.initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-1">
-              <p className="text-sm">
-                <span className="font-medium">{activity.user.name}</span>{' '}
-                <Badge variant="secondary" className={cn('font-normal', typeColors[activity.type])}>
-                  {activity.action}
-                </Badge>{' '}
-                {activity.target}
-              </p>
-              <p className="text-xs text-muted-foreground">{activity.time}</p>
+          <div
+            key={activity.id}
+            className="flex items-start gap-3.5 px-5 py-3.5 transition-colors hover:bg-secondary/40"
+          >
+            {/* Dot */}
+            <div className="relative mt-[7px] flex shrink-0 items-center justify-center">
+              <span className={cn('size-2 rounded-full', dotColor[activity.type])} />
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-[13px] text-foreground leading-snug">{activity.message}</p>
+              <p className="mt-0.5 font-mono text-[11px] text-muted-foreground/60">{activity.time}</p>
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

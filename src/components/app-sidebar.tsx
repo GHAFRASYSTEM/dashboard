@@ -10,7 +10,6 @@ import {
   Briefcase,
   Images,
   Bell,
-  Settings,
   LogOut,
   UserCog,
 } from 'lucide-react'
@@ -30,67 +29,23 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const mainNavItems = [
-  {
-    title: 'Dashboard',
-    href: '/',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Trends',
-    href: '/trends',
-    icon: TrendingUp,
-  },
-  {
-    title: 'Housing',
-    href: '/housing',
-    icon: Home,
-  },
-  {
-    title: 'Announcements',
-    href: '/announcements',
-    icon: Megaphone,
-  },
-  {
-    title: 'Marketing Services',
-    href: '/marketing',
-    icon: ShoppingBag,
-  },
+  { title: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { title: 'Trends', href: '/trends', icon: TrendingUp },
+  { title: 'Housing', href: '/housing', icon: Home },
+  { title: 'Announcements', href: '/announcements', icon: Megaphone },
+  { title: 'Marketing Services', href: '/marketing', icon: ShoppingBag },
 ]
 
 const managementItems = [
-  {
-    title: 'Executives',
-    href: '/executives',
-    icon: UserCog,
-  },
-  {
-    title: 'Members',
-    href: '/members',
-    icon: Users,
-  },
-  {
-    title: 'Contributions',
-    href: '/contributions',
-    icon: DollarSign,
-  },
-  {
-    title: 'Internships',
-    href: '/internships',
-    icon: Briefcase,
-  },
+  { title: 'Executives', href: '/executives', icon: UserCog },
+  { title: 'Members', href: '/members', icon: Users },
+  { title: 'Contributions', href: '/contributions', icon: DollarSign },
+  { title: 'Internships', href: '/internships', icon: Briefcase },
 ]
 
 const mediaItems = [
-  {
-    title: 'Gallery',
-    href: '/gallery',
-    icon: Images,
-  },
-  {
-    title: 'Notifications',
-    href: '/notifications',
-    icon: Bell,
-  },
+  { title: 'Gallery', href: '/gallery', icon: Images },
+  { title: 'Notifications', href: '/notifications', icon: Bell },
 ]
 
 export function AppSidebar() {
@@ -99,27 +54,39 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+      {/* Logo */}
+      <SidebarHeader className="shrink-0 border-b border-sidebar-border px-4 py-5">
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary font-semibold text-sm text-primary-foreground">
             G
           </div>
-          <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">
+          <span className="text-[15px] font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
             Gafra Admin
           </span>
         </Link>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+      {/* Scrollable content — no visible scrollbar */}
+      <SidebarContent
+        className="flex flex-col gap-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {/* Main Menu */}
+        <SidebarGroup className="shrink-0 px-3 py-3">
+          <SidebarGroupLabel className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/30">
+            Main Menu
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {mainNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.title}
+                    className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
+                  >
                     <Link to={item.href}>
-                      <item.icon className="size-4" />
+                      <item.icon className="size-[15px] shrink-0" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -129,17 +96,25 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="mx-3 my-0 shrink-0 bg-sidebar-border" />
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
+        {/* Management */}
+        <SidebarGroup className="shrink-0 px-3 py-3">
+          <SidebarGroupLabel className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/30">
+            Management
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {managementItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.title}
+                    className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
+                  >
                     <Link to={item.href}>
-                      <item.icon className="size-4" />
+                      <item.icon className="size-[15px] shrink-0" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -149,17 +124,25 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator />
+        <SidebarSeparator className="mx-3 my-0 shrink-0 bg-sidebar-border" />
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Media & Communications</SidebarGroupLabel>
+        {/* Media */}
+        <SidebarGroup className="shrink-0 px-3 py-3">
+          <SidebarGroupLabel className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/30">
+            Media & Comms
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {mediaItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === item.href}
+                    tooltip={item.title}
+                    className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
+                  >
                     <Link to={item.href}>
-                      <item.icon className="size-4" />
+                      <item.icon className="size-[15px] shrink-0" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -168,35 +151,30 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Spacer pushes footer anchor to bottom on tall screens */}
+        <div className="flex-1" />
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === '/settings'} tooltip="Settings">
-              <Link to="/settings">
-                <Settings className="size-4" />
-                <span>Settings</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-
-        <SidebarSeparator />
-
-        <div className="flex items-center gap-3 p-2 group-data-[collapsible=icon]:justify-center">
-          <Avatar className="size-8">
+      {/* Footer — user row only */}
+      <SidebarFooter className="shrink-0 border-t border-sidebar-border px-3 py-3">
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center cursor-pointer">
+          <Avatar className="size-8 shrink-0">
             <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
-            <AvatarFallback className="bg-primary text-xs text-primary-foreground">AD</AvatarFallback>
+            <AvatarFallback className="bg-primary text-[11px] font-semibold text-primary-foreground">
+              AD
+            </AvatarFallback>
           </Avatar>
-
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-medium">Admin User</span>
-            <span className="text-xs text-muted-foreground">Super Admin</span>
+          <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
+            <span className="text-[13px] font-medium text-sidebar-foreground leading-tight">
+              Admin User
+            </span>
+            <span className="text-[11px] text-sidebar-foreground/40 leading-tight mt-0.5">
+              Super Admin
+            </span>
           </div>
-
-          <button className="ml-auto text-muted-foreground hover:text-foreground group-data-[collapsible=icon]:hidden">
-            <LogOut className="size-4" />
+          <button className="ml-auto text-sidebar-foreground/30 hover:text-sidebar-foreground/70 transition-colors group-data-[collapsible=icon]:hidden">
+            <LogOut className="size-[15px]" />
           </button>
         </div>
       </SidebarFooter>
