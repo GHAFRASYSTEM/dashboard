@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from './auth-context'
+import { useAuth } from '../../context/auth-context'
 
 export function ProtectedRoute() {
   const { isAuthenticated, isReady } = useAuth()
@@ -15,7 +15,6 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     const redirectTo = `${location.pathname}${location.search}${location.hash}`
-
     return <Navigate to="/auth/login" replace state={{ from: redirectTo }} />
   }
 
