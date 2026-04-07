@@ -25,6 +25,7 @@ type AuthContextValue = {
   user: AuthUser | null
   isAuthenticated: boolean
   isReady: boolean
+  signInTemporary: () => void
   signInWithGoogleCredential: (credential: string) => void
   signOut: () => void
 }
@@ -52,6 +53,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isReady, setIsReady] = useState(false)
 
+  const setAuthenticatedUser = (nextUser: AuthUser) => {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser))
+    setUser(nextUser)
+  }
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY)
@@ -71,10 +77,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: Boolean(user),
       isReady,
+      signInTemporary: () => {
+        setAuthenticatedUser({
+          id: 'temporary-admin',
+          email: 'admin@ghafra.local',
+          name: 'Temporary Admin',
+          givenName: 'Temporary',
+          familyName: 'Admin',
+        })
+      },
       signInWithGoogleCredential: (credential: string) => {
         const nextUser = parseGoogleCredential(credential)
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser))
-        setUser(nextUser)
+        setAuthenticatedUser(nextUser)
       },
       signOut: () => {
         localStorage.removeItem(AUTH_STORAGE_KEY)

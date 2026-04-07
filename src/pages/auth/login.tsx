@@ -1,6 +1,6 @@
-import { GoogleLogin } from '@react-oauth/google'
 import { ArrowRight, ShieldCheck } from 'lucide-react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Button } from '../../components/ui/button'
 import { useAuth } from '../../auth/auth-context'
 
 type LoginLocationState = {
@@ -8,14 +8,11 @@ type LoginLocationState = {
 }
 
 export default function LoginPage() {
-  const { isAuthenticated, signInWithGoogleCredential } = useAuth()
+  const { isAuthenticated, signInTemporary } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const state = (location.state as LoginLocationState) ?? {}
   const [fromPath] = [state.from && state.from !== '/auth/login' ? state.from : '/']
-
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-  const isGoogleConfigured = Boolean(googleClientId)
 
   if (isAuthenticated) {
     return <Navigate to={fromPath} replace />
@@ -68,43 +65,24 @@ export default function LoginPage() {
                 Sign in
               </p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight">
-                Continue with Google
+                Continue to Dashboard
               </h2>
               <p className="mt-3 text-sm text-muted-foreground">
-                Use your organization-approved Google account to continue.
+                Temporary access mode is enabled while backend authentication is being integrated.
               </p>
             </div>
 
             <div className="mt-8">
-              {isGoogleConfigured ? (
-                <GoogleLogin
-                  onSuccess={(credentialResponse) => {
-                    const credential = credentialResponse.credential
-                    if (!credential) {
-                      return
-                    }
-
-                    signInWithGoogleCredential(credential)
-                    navigate(fromPath, { replace: true })
-                  }}
-                  onError={() => {
-                    console.error('Google login failed.')
-                  }}
-                  width="300"
-                  text="signin_with"
-                  shape="pill"
-                  size="large"
-                  theme="filled_black"
-                />
-              ) : (
-                <div className="rounded-xl border border-destructive/35 bg-destructive/10 px-4 py-3 text-sm text-destructive-foreground">
-                  Google auth is not configured yet. Add
-                  <code className="mx-1 rounded bg-background/70 px-1.5 py-0.5 text-xs text-foreground">
-                    VITE_GOOGLE_CLIENT_ID
-                  </code>
-                  in your dashboard env file.
-                </div>
-              )}
+              <Button
+                type="button"
+                className="h-11 w-full rounded-xl text-sm font-medium"
+                onClick={() => {
+                  signInTemporary()
+                  navigate(fromPath, { replace: true })
+                }}
+              >
+                Login and Open Dashboard
+              </Button>
             </div>
 
             <div className="mt-8 flex items-center justify-between border-t border-border/80 pt-5 text-xs text-muted-foreground">
