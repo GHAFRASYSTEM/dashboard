@@ -15,7 +15,7 @@ import { Bell, Search } from 'lucide-react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-import { useAuth } from '../auth/auth-context'
+import { useAuth } from '../../context/auth-context'
 
 interface DashboardLayoutProps {
   children: React.ReactNode

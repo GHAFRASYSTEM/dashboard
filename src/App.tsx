@@ -17,6 +17,7 @@ import ExecutiveDetailPage from './pages/executives/executivesdetailpage'
 import MemberDetailPage from './pages/members/membersdetailpage'
 import LoginPage from './pages/auth/login'
 import { ProtectedRoute } from './auth/protected-route'
+import AuthCallback from './auth/AuthCallback'
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<HomePage />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/contributions" element={<ContributionsPage />} />
         <Route path="/executives" element={<ExecutivesPage />} />

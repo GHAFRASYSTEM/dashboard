@@ -13,7 +13,7 @@ import {
   LogOut,
   UserCog,
 } from 'lucide-react'
-import { useAuth } from '../auth/auth-context'
+import { useAuth } from '../../context/auth-context'
 import {
   Sidebar,
   SidebarContent,
