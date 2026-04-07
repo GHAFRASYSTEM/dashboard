@@ -15,6 +15,7 @@ import { Bell, Search } from 'lucide-react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
+import { useAuth } from '../auth/auth-context'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -29,12 +30,14 @@ export function DashboardLayout({
   subtitle,
   breadcrumbs = [],
 }: DashboardLayoutProps) {
+  const { user } = useAuth()
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
+  const greetingName = user?.givenName ?? user?.name ?? 'Admin'
 
   return (
     <SidebarProvider>
@@ -113,7 +116,7 @@ export function DashboardLayout({
               <p className="mt-1 text-[13px] text-muted-foreground">{subtitle}</p>
             ) : (
               <p className="mt-1 text-[13px] text-muted-foreground">
-                {today} · Welcome back, Admin
+                {today} · Welcome back, {greetingName}
               </p>
             )}
           </div>

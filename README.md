@@ -1,5 +1,38 @@
 # React + TypeScript + Vite
 
+## Google Authentication Setup
+
+This project now uses a Google-only sign-in page at `/auth/login`.
+
+### 1) Create Google OAuth credentials
+
+1. Open Google Cloud Console.
+2. Create a project (or use an existing one).
+3. Go to **APIs & Services > OAuth consent screen** and configure the app.
+4. Go to **APIs & Services > Credentials**.
+5. Create **OAuth Client ID** with type **Web application**.
+6. Add your app origins:
+  - `http://localhost:5173` for local development
+  - your production domain later
+7. Copy the generated client ID.
+
+### 2) Configure environment variable
+
+1. In the `dashboard` folder, copy `.env.example` to `.env`.
+2. Set your client ID:
+
+```env
+VITE_GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+```
+
+### 3) Run the app
+
+```bash
+npm run dev
+```
+
+Then open your app and sign in with Google. All dashboard routes are protected and will redirect unauthenticated users to `/auth/login`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

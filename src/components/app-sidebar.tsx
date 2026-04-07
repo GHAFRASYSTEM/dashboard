@@ -13,6 +13,7 @@ import {
   LogOut,
   UserCog,
 } from 'lucide-react'
+import { useAuth } from '../auth/auth-context'
 import {
   Sidebar,
   SidebarContent,
@@ -51,6 +52,15 @@ const mediaItems = [
 export function AppSidebar() {
   const location = useLocation()
   const pathname = location.pathname
+  const { user, signOut } = useAuth()
+
+  const userInitials = (user?.name ?? 'Admin User')
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 
   return (
     <Sidebar collapsible="icon">
@@ -160,20 +170,26 @@ export function AppSidebar() {
       <SidebarFooter className="shrink-0 border-t border-sidebar-border px-3 py-3">
         <div className="flex items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center cursor-pointer">
           <Avatar className="size-8 shrink-0">
-            <AvatarImage src="/placeholder-user.jpg" alt="Admin" />
+            <AvatarImage src={user?.picture} alt={user?.name ?? 'Admin User'} />
             <AvatarFallback className="bg-primary text-[11px] font-semibold text-primary-foreground">
-              AD
+              {userInitials}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
             <span className="text-[13px] font-medium text-sidebar-foreground leading-tight">
-              Admin User
+              {user?.name ?? 'Admin User'}
             </span>
             <span className="text-[11px] text-sidebar-foreground/40 leading-tight mt-0.5">
-              Super Admin
+              {user?.email ?? 'No email'}
             </span>
           </div>
-          <button className="ml-auto text-sidebar-foreground/30 hover:text-sidebar-foreground/70 transition-colors group-data-[collapsible=icon]:hidden">
+          <button
+            type="button"
+            onClick={signOut}
+            className="ml-auto text-sidebar-foreground/30 hover:text-sidebar-foreground/70 transition-colors group-data-[collapsible=icon]:hidden"
+            aria-label="Sign out"
+            title="Sign out"
+          >
             <LogOut className="size-[15px]" />
           </button>
         </div>
