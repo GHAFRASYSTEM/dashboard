@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { adminGoogleSignIn } from '../api/auth'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
-  const ran = useRef(false) // StrictMode guard
+  const ran = useRef(false)
 
   useEffect(() => {
     if (ran.current) return
     ran.current = true
 
     const handleCallback = async () => {
-      // Supabase parses the #access_token hash automatically
       const { data, error } = await supabase.auth.getSession()
 
       if (error || !data.session) {
@@ -20,28 +20,18 @@ export default function AuthCallback() {
         return
       }
 
-      // Tell your backend about this admin sign-in
       try {
-        const res = await fetch('https://backend-016i.onrender.com/auth/admin/google', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ access_token: data.session.access_token }),
-        })
+        await adminGoogleSignIn(data.session.access_token)
 
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}))
-          console.error('Admin sign-in rejected:', err)
-          // Sign out of Supabase so the session isn't dangling
-          await supabase.auth.signOut()
-          navigate('/auth/login', { replace: true, state: { error: 'Not authorised as admin' } })
-          return
-        }
-
-        // Auth context auto-syncs via onAuthStateChange — just navigate
         navigate('/', { replace: true })
       } catch (err) {
-        console.error('Callback fetch failed:', err)
-        navigate('/auth/login', { replace: true })
+        console.error('Admin sign-in rejected:', err)
+
+        await supabase.auth.signOut()
+        navigate('/auth/login', {
+          replace: true,
+          state: { error: 'Not authorised as admin' },
+        })
       }
     }
 

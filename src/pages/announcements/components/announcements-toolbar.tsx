@@ -1,5 +1,6 @@
-import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
+import { Search, Plus, SlidersHorizontal } from 'lucide-react'
+import { Input }   from '../../../components/ui/input'
+import { Button }  from '../../../components/ui/button'
 import {
   Select,
   SelectContent,
@@ -7,14 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../../components/ui/select'
-import { Plus, Search } from 'lucide-react'
+import { CATEGORY_OPTIONS } from '../utils/announcement-config'
 
 interface Props {
-  searchQuery: string
-  onSearchChange: (value: string) => void
-  filterStatus: string
-  onFilterChange: (value: string) => void
-  onAdd: () => void
+  searchQuery:    string
+  onSearchChange: (v: string) => void
+  filterStatus:   string
+  onFilterChange: (v: string) => void
+  onAdd:          () => void
 }
 
 export function AnnouncementsToolbar({
@@ -25,36 +26,41 @@ export function AnnouncementsToolbar({
   onAdd,
 }: Props) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search announcements..."
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="border-border bg-card pl-10"
-        />
-      </div>
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-1 items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search announcements…"
+            value={searchQuery}
+            onChange={e => onSearchChange(e.target.value)}
+            className="pl-9"
+          />
+        </div>
 
-      <div className="flex gap-3">
+        {/* Category filter */}
         <Select value={filterStatus} onValueChange={onFilterChange}>
-          <SelectTrigger className="w-[140px] border-border bg-card">
-            <SelectValue placeholder="Filter" />
+          <SelectTrigger className="w-36">
+            <SlidersHorizontal className="mr-2 size-4 text-muted-foreground" />
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="published">Published</SelectItem>
-            <SelectItem value="pending">Scheduled</SelectItem>
-            <SelectItem value="draft">Drafts</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
+            {CATEGORY_OPTIONS.map(o => (
+              <SelectItem key={o.value} value={o.value}>
+                {o.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-
-        <Button onClick={onAdd} className="gap-2">
-          <Plus className="size-4" />
-          <span className="hidden sm:inline">New Announcement</span>
-          <span className="sm:hidden">New</span>
-        </Button>
       </div>
+
+      {/* Add button */}
+      <Button onClick={onAdd} className="shrink-0 gap-2">
+        <Plus className="size-4" />
+        New Announcement
+      </Button>
     </div>
   )
 }

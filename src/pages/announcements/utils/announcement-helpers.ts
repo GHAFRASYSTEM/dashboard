@@ -1,31 +1,29 @@
 import type { Announcement } from '../types/announcement'
 
-export const filterAnnouncements = (
+export function filterAnnouncements(
   announcements: Announcement[],
-  searchQuery: string,
-  filterStatus: string
-) => {
-  const normalizedQuery = searchQuery.trim().toLowerCase()
-
-  return announcements.filter((announcement) => {
+  searchQuery:    string,
+  categoryFilter: string,
+): Announcement[] {
+  const q = searchQuery.trim().toLowerCase()
+  return announcements.filter(a => {
     const matchesSearch =
-      normalizedQuery === '' ||
-      announcement.title.toLowerCase().includes(normalizedQuery) ||
-      announcement.content.toLowerCase().includes(normalizedQuery)
-
-    const matchesStatus =
-      filterStatus === 'all' || announcement.status === filterStatus
-
-    return matchesSearch && matchesStatus
+      q === '' ||
+      a.title.toLowerCase().includes(q) ||
+      a.body.toLowerCase().includes(q)
+    const matchesCategory =
+      categoryFilter === 'all' || a.category === categoryFilter
+    return matchesSearch && matchesCategory
   })
 }
 
-export const getAnnouncementStats = (announcements: Announcement[]) => {
+export function getAnnouncementStats(announcements: Announcement[]) {
   return {
-    published: announcements.filter((announcement) => announcement.status === 'published')
-      .length,
-    scheduled: announcements.filter((announcement) => announcement.status === 'pending')
-      .length,
-    drafts: announcements.filter((announcement) => announcement.status === 'draft').length,
+    total:    announcements.length,
+    news:     announcements.filter(a => a.category === 'news').length,
+    events:   announcements.filter(a => a.category === 'event').length,
+    housing:  announcements.filter(a => a.category === 'housing').length,
+    personal: announcements.filter(a => a.category === 'personal').length,
+    updates:  announcements.filter(a => a.category === 'update').length,
   }
 }

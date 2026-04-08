@@ -1,142 +1,148 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { DashboardLayout } from '../../components/dashboard-layout'
 import type { Announcement } from './types/announcement'
-import { mockAnnouncements } from './data/mock-announcements'
+import {
+  getAnnouncements,
+  createAnnouncement,
+  updateAnnouncement,
+  deleteAnnouncement,
+} from '../../api/announcements'
+import { fileToBase64 }            from './utils/fileToBase64'
 import { filterAnnouncements, getAnnouncementStats } from './utils/announcement-helpers'
-import { AnnouncementsStats } from './components/announcements-stats'
-import { AnnouncementsToolbar } from './components/announcements-toolbar'
-import { AnnouncementCard } from './components/announcement-card'
+import { AnnouncementsStats }      from './components/announcements-stats'
+import { AnnouncementsToolbar }    from './components/announcements-toolbar'
+import { AnnouncementCard }        from './components/announcement-card'
 import { AnnouncementsEmptyState } from './components/announcements-empty-state'
-import { AnnouncementFormDialog } from './components/announcement-form-dialog'
-import { AnnouncementPreviewDialog } from './components/announcement-preview-dialog'
+import { AnnouncementFormDialog }  from './components/announcement-form-dialog'
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState(mockAnnouncements)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingAnnouncement, setEditingAnnouncement] = useState<Announcement | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
-  const [viewingAnnouncement, setViewingAnnouncement] = useState<Announcement | null>(null)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const [loading,       setLoading]       = useState(true)
+  const [isDialogOpen,  setIsDialogOpen]  = useState(false)
+  const [editing,       setEditing]       = useState<Announcement | null>(null)
+  const [searchQuery,   setSearchQuery]   = useState('')
+  const [categoryFilter,setCategoryFilter]= useState('all')
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null)
 
-  const filteredAnnouncements = filterAnnouncements(
-    announcements,
-    searchQuery,
-    filterStatus
-  )
-
-  const stats = getAnnouncementStats(announcements)
-
-  const handleAdd = () => {
-    setEditingAnnouncement(null)
-    setUploadedImages([])
-    setIsDialogOpen(true)
-  }
-
-  const handleEdit = (item: Announcement) => {
-    setEditingAnnouncement(item)
-    setUploadedImages(item.images)
-    setIsDialogOpen(true)
-  }
-
-  const handleDelete = (id: string) => {
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id))
-  }
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (files) {
-      const newImages = Array.from(files).map((file) => URL.createObjectURL(file))
-      setUploadedImages((prev) => [...prev, ...newImages])
+  // ── Load ──────────────────────────────────────────────────────────────────
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      // Fetch all (page 1, limit 100 for admin view — paginate later if needed)
+      const res = await getAnnouncements(1, 50)
+      setAnnouncements(res.data)
+    } finally {
+      setLoading(false)
     }
+  }, [])
+
+  useEffect(() => { load() }, [load])
+
+  // ── Derived ───────────────────────────────────────────────────────────────
+  const filtered = filterAnnouncements(announcements, searchQuery, categoryFilter)
+  const stats    = getAnnouncementStats(announcements)
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
+  const openAdd = () => {
+    setEditing(null)
+    setUploadedImage(null)
+    setIsDialogOpen(true)
   }
 
-  const removeImage = (index: number) => {
-    setUploadedImages((prev) => prev.filter((_, i) => i !== index))
+  const openEdit = (item: Announcement) => {
+    setEditing(item)
+    setUploadedImage(null)
+    setIsDialogOpen(true)
   }
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Delete this announcement? This cannot be undone.')) return
+    await deleteAnnouncement(id)
+    await load()
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const base64 = await fileToBase64(file)
+    setUploadedImage(base64)
+  }
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const status = formData.get('status') as Announcement['status']
+    const fd = new FormData(e.currentTarget)
 
-    const newAnnouncement: Announcement = {
-      id: editingAnnouncement?.id || Date.now().toString(),
-      title: formData.get('title') as string,
-      content: formData.get('content') as string,
-      author: 'Admin',
-      status,
-      priority: formData.get('priority') as Announcement['priority'],
-      audience: formData.get('audience') as Announcement['audience'],
-      images: uploadedImages,
-      publishedAt: status === 'published' ? new Date() : undefined,
-      createdAt: editingAnnouncement?.createdAt || new Date(),
+    const payload = {
+      category: fd.get('category') as string,
+      title:    fd.get('title')    as string,
+      body:     fd.get('body')     as string,
+      // Only send image if a new one was selected
+      ...(uploadedImage ? { image: uploadedImage } : {}),
     }
 
-    if (editingAnnouncement) {
-      setAnnouncements((prev) =>
-        prev.map((a) => (a.id === editingAnnouncement.id ? newAnnouncement : a))
-      )
+    if (editing) {
+      await updateAnnouncement(editing.id, payload)
     } else {
-      setAnnouncements((prev) => [newAnnouncement, ...prev])
+      await createAnnouncement(payload)
     }
 
     setIsDialogOpen(false)
-    setUploadedImages([])
+    setUploadedImage(null)
+    await load()
   }
 
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <DashboardLayout title="Announcements" breadcrumbs={[{ label: 'Announcements' }]}>
+    <DashboardLayout
+      title="Announcements"
+      breadcrumbs={[{ label: 'Announcements' }]}
+    >
       <AnnouncementsStats stats={stats} />
 
       <AnnouncementsToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        filterStatus={filterStatus}
-        onFilterChange={setFilterStatus}
-        onAdd={handleAdd}
+        filterStatus={categoryFilter}
+        onFilterChange={setCategoryFilter}
+        onAdd={openAdd}
       />
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filteredAnnouncements.map((announcement) => (
-          <AnnouncementCard
-            key={announcement.id}
-            announcement={announcement}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-24">
+          <div className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {filtered.map(a => (
+              <AnnouncementCard
+                key={a.id}
+                announcement={a}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
 
-      {filteredAnnouncements.length === 0 && (
-        <AnnouncementsEmptyState
-          searchQuery={searchQuery}
-          filterStatus={filterStatus}
-          onAdd={handleAdd}
-        />
+          {filtered.length === 0 && (
+            <AnnouncementsEmptyState
+              searchQuery={searchQuery}
+              filterStatus={categoryFilter}
+              onAdd={openAdd}
+            />
+          )}
+        </>
       )}
-
-      <AnnouncementPreviewDialog
-        open={!!viewingAnnouncement}
-        onOpenChange={(open) => {
-          if (!open) setViewingAnnouncement(null)
-        }}
-        announcement={viewingAnnouncement}
-        currentImageIndex={currentImageIndex}
-        setCurrentImageIndex={setCurrentImageIndex}
-        onEdit={handleEdit}
-      />
 
       <AnnouncementFormDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        editingAnnouncement={editingAnnouncement}
-        uploadedImages={uploadedImages}
+        editingAnnouncement={editing}
+        uploadedImage={uploadedImage}
         onImageUpload={handleImageUpload}
-        onRemoveImage={removeImage}
+        onRemoveImage={() => setUploadedImage(null)}
         onSubmit={handleSave}
       />
     </DashboardLayout>

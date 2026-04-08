@@ -1,10 +1,10 @@
-import { Button } from '../../../components/ui/button'
 import { Megaphone, Plus } from 'lucide-react'
+import { Button } from '../../../components/ui/button'
 
 interface Props {
-  searchQuery: string
+  searchQuery:  string
   filterStatus: string
-  onAdd: () => void
+  onAdd:        () => void
 }
 
 export function AnnouncementsEmptyState({
@@ -12,26 +12,25 @@ export function AnnouncementsEmptyState({
   filterStatus,
   onAdd,
 }: Props) {
+  const isFiltered = searchQuery.trim() !== '' || filterStatus !== 'all'
+
   return (
-    <div className="py-16 text-center">
-      <div className="mb-4 inline-flex size-16 items-center justify-center rounded-full bg-muted">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 py-20 text-center">
+      <div className="mb-4 rounded-full bg-muted p-4">
         <Megaphone className="size-8 text-muted-foreground" />
       </div>
-
-      <h3 className="mb-2 text-lg font-medium text-foreground">
-        No announcements found
+      <h3 className="text-base font-semibold text-foreground">
+        {isFiltered ? 'No matching announcements' : 'No announcements yet'}
       </h3>
-
-      <p className="mb-4 text-muted-foreground">
-        {searchQuery || filterStatus !== 'all'
-          ? 'Try adjusting your search or filter criteria'
-          : 'Get started by creating your first announcement'}
+      <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+        {isFiltered
+          ? 'Try adjusting your search or filter.'
+          : 'Create your first announcement to keep members informed.'}
       </p>
-
-      {!searchQuery && filterStatus === 'all' && (
-        <Button onClick={onAdd} className="gap-2">
+      {!isFiltered && (
+        <Button onClick={onAdd} className="mt-6 gap-2">
           <Plus className="size-4" />
-          Create Announcement
+          New Announcement
         </Button>
       )}
     </div>

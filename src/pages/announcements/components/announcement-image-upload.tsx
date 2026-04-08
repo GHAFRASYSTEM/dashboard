@@ -1,45 +1,79 @@
-import { ImagePlus, X } from 'lucide-react'
+import { ImagePlus, X, Upload } from 'lucide-react'
+import { useRef } from 'react'
 
 interface Props {
-  uploadedImages: string[]
-  onRemoveImage: (index: number) => void
-  onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void
+  uploadedImage:  string | null
+  onRemoveImage:  () => void
+  onImageUpload:  (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 export function AnnouncementImageUpload({
-  uploadedImages,
+  uploadedImage,
   onRemoveImage,
   onImageUpload,
 }: Props) {
-  return (
-    <div className="space-y-3">
-      <label className="text-sm font-medium">Images</label>
+  const inputRef = useRef<HTMLInputElement>(null)
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {uploadedImages.map((img, index) => (
-          <div key={index} className="group relative aspect-video overflow-hidden rounded-lg">
-            <img src={img} alt={`Upload ${index + 1}`} className="h-full w-full object-cover" />
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-foreground">
+        Image <span className="text-muted-foreground">(optional)</span>
+      </label>
+
+      <div className="relative overflow-hidden rounded-xl border border-dashed border-border bg-muted/30 transition-colors hover:bg-muted/50">
+        {uploadedImage ? (
+          <div className="relative aspect-video">
+            <img
+              src={uploadedImage}
+              alt="Preview"
+              className="h-full w-full object-cover"
+            />
+            {/* Remove */}
             <button
               type="button"
-              onClick={() => onRemoveImage(index)}
-              className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white opacity-0 transition-opacity hover:bg-black/80 group-hover:opacity-100"
+              onClick={onRemoveImage}
+              className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white transition-colors hover:bg-black/80"
             >
-              <X className="size-3" />
+              <X className="size-3.5" />
+            </button>
+            {/* Replace overlay */}
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-1.5 text-xs text-white transition-colors hover:bg-black/80"
+            >
+              <Upload className="size-3" />
+              Replace
             </button>
           </div>
-        ))}
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex aspect-video w-full flex-col items-center justify-center gap-3 p-6 text-center"
+          >
+            <div className="rounded-full bg-muted p-3">
+              <ImagePlus className="size-6 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Click to upload image
+              </p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                PNG, JPG, WebP — max 10 MB
+              </p>
+            </div>
+          </button>
+        )}
 
-        <label className="flex aspect-video cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:border-primary/50 hover:bg-primary/5">
-          <ImagePlus className="mb-2 size-6 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">Add Image</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={onImageUpload}
-          />
-        </label>
+        {/* Hidden file input */}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/webp"
+          className="hidden"
+          onChange={onImageUpload}
+        />
       </div>
     </div>
   )
