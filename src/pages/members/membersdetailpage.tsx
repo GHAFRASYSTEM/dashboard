@@ -1,202 +1,287 @@
-"use client";
-
-import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { formatDistanceToNow } from "date-fns";
-import { ArrowLeft, Clock, CreditCard, FileText } from "lucide-react";
-
-import { DashboardLayout } from "../../components/dashboard-layout";
-import { Button } from "../../components/ui/button";
+import { useState,useEffect }        from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { DashboardLayout } from '../../components/dashboard-layout';
+import { Button }          from '../../components/ui/button';
+import { Badge }           from '../../components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '../../components/ui/avatar';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Switch }          from '../../components/ui/switch';
+import { Label }           from '../../components/ui/label';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../components/ui/tabs";
-
+  ArrowLeft, Mail, Phone,
+  Briefcase, ShieldCheck, Trash2, Edit2,
+} from 'lucide-react';
+import { useMember }       from '../../hooks/useMembers';
+import { membersApi } from '../../api/members';
 import {
-  mockActivities,
-  mockContributions,
-  mockMembers,
-} from "./data/mock-members";
-import type { Contribution, Activity, Member } from "./types/members";
+  getInitials, getVerifiedConfig, getRoleConfig,
+  formatPhone, formatDate, formatMemberSince,
+} from './utils/member-utils';
+import { MemberEditDialog } from './components/member-edit-dialog';
+import { DeleteMemberDialog } from './components/delete-member-dialog';
 
-import { MemberProfileHeader } from "./components/member-profile-header";
-import { MemberContributionsTab } from "./components/member-contributions-tab";
-import { MemberActivityTab } from "./components/member-activity-tab";
-import { MemberDocumentsTab } from "./components/member-documents-tab";
-import { MemberQuickStats } from "./components/member-quick-stats";
-import { MemberContactCard } from "./components/member-contact-card";
-import { MemberPersonalDetailsCard } from "./components/member-personal-details-card";
-import { MemberEmergencyContactCard } from "./components/member-emergency-contact-card";
-import { MemberEditDialog } from "./components/member-edit-dialog";
-import { MemberMessageDialog } from "./components/member-message-dialog";
-import { DeleteMemberDialog } from "./components/delete-member-dialog";
+
 
 export default function MemberDetailPage() {
-  const params = useParams();
-  const navigate = useNavigate();
+  const { id }      = useParams<{ id: string }>();
+  const navigate    = useNavigate();
+  const { member, loading, error, update, toggleVerify } = useMember(id!);
 
-  const fallbackMember = mockMembers[0];
-  const selectedMember =
-    mockMembers.find((member) => member.id === params.id) ?? fallbackMember;
+  console.log(member)
 
-  const [member, setMember] = useState<Member>(selectedMember);
-  const [contributions] = useState<Contribution[]>(mockContributions);
-  const [activities] = useState<Activity[]>(mockActivities);
-
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-
-  const [memberImage, setMemberImage] = useState(member.image || "");
-  const [copied, setCopied] = useState(false);
-  const [message, setMessage] = useState("");
+  const [editOpen,   setEditOpen]   = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [verifying,  setVerifying]  = useState(false);
 
   const [formData, setFormData] = useState({
-    name: member.name,
-    email: member.email,
-    phone: member.phone,
-    location: member.location,
-    address: member.address || "",
-    position: member.position || "",
-    department: member.department || "",
-    bio: member.bio || "",
-    occupation: member.occupation || "",
-    employer: member.employer || "",
-    status: member.status,
-  });
+  name: '',
+  email: '',
+  phone: '',
+  location: '',
+  address: '',
+  position: '',
+  department: '',
+  bio: '',
+  occupation: '',
+  employer: '',
+  status: 'active' as 'active' | 'inactive' | 'pending',
+});
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+const [memberImage, setMemberImage] = useState('');
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setMemberImage(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+useEffect(() => {
+  if (member) {
+    setFormData({
+      name: member.name || '',
+      email: member.email || '',
+      phone: member.ghana_phone || '',
+      location: member.city || '',
+      address: '',
+      position: '',
+      department: '',
+      bio: '',
+      occupation: member.occupation || '',
+      employer: '',
+      status: 'active',
+    });
+
+    setMemberImage(member.photo_url || '');
+  }
+}, [member]);
+
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    setMemberImage(url);
+  }
+};
+
+  if (loading) return (
+    <DashboardLayout title="Member Profile" breadcrumbs={[{ label: 'Members', href: '/members' }, { label: '…' }]}>
+      <div className="py-16 text-center text-muted-foreground">Loading…</div>
+    </DashboardLayout>
+  );
+
+  if (error || !member) return (
+    <DashboardLayout title="Member Profile" breadcrumbs={[{ label: 'Members', href: '/members' }, { label: 'Not found' }]}>
+      <div className="py-16 text-center text-destructive">{error ?? 'Member not found'}</div>
+    </DashboardLayout>
+  );
+
+  const vc = getVerifiedConfig(member.is_verified);
+  const rc = getRoleConfig(member.role);
+
+  const handleToggleVerify = async (checked: boolean) => {
+    setVerifying(true);
+    try { await toggleVerify(checked); }
+    finally { setVerifying(false); }
   };
 
-  const handleSave = () => {
-    setMember((prev) => ({
-      ...prev,
-      ...formData,
-      image: memberImage,
-    }));
-    setIsEditDialogOpen(false);
-  };
-
-  const handleDelete = () => {
-    navigate("/members");
-  };
-
-  const handleCopyId = async () => {
-    try {
-      await navigator.clipboard.writeText(member.membershipId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  const handleSendMessage = () => {
-    setMessage("");
-    setIsMessageDialogOpen(false);
+  const handleDelete = async () => {
+    await membersApi.remove(member.id);
+    navigate('/members');
   };
 
   return (
     <DashboardLayout
       title="Member Profile"
       breadcrumbs={[
-        { label: "Members", href: "/members" },
+        { label: 'Members', href: '/members' },
         { label: member.name },
       ]}
     >
       <div className="mb-6">
         <Link to="/members">
           <Button variant="ghost" size="sm" className="gap-2">
-            <ArrowLeft className="size-4" />
-            Back to Members
+            <ArrowLeft className="size-4" />Back to Members
           </Button>
         </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
+
+        {/* ── Left column ───────────────────────────────────────── */}
         <div className="space-y-6 lg:col-span-2">
-          <MemberProfileHeader
-            member={member}
-            copied={copied}
-            onCopyId={handleCopyId}
-            onMessage={() => setIsMessageDialogOpen(true)}
-            onEdit={() => setIsEditDialogOpen(true)}
-            onDelete={() => setIsDeleteDialogOpen(true)}
-          />
 
-          <Tabs defaultValue="contributions" className="space-y-4">
-            <TabsList className="bg-card border border-border">
-              <TabsTrigger value="contributions" className="gap-2">
-                <CreditCard className="size-4" />
-                Contributions
-              </TabsTrigger>
+          {/* Profile header */}
+          <Card className="overflow-hidden border-border">
+            <div className="relative h-36 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/5" />
+            <CardContent className="relative pt-0 pb-6">
+              <div className="absolute -top-14 left-6">
+                <div className="relative">
+                  <Avatar className="size-28 border-4 border-card shadow-xl">
+                    <AvatarImage src={member.photo_url ?? ''} alt={member.name} className="object-cover" />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-4xl">
+                      {getInitials(member.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className={`absolute bottom-2 right-2 size-4 rounded-full border-2 border-card ${vc.dot}`} />
+                </div>
+              </div>
 
-              <TabsTrigger value="activity" className="gap-2">
-                <Clock className="size-4" />
-                Activity
-              </TabsTrigger>
+              <div className="mb-6 flex justify-end gap-2">
+                <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+                  <Edit2 className="mr-2 size-4" />Edit
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+                  <Trash2 className="mr-2 size-4" />Remove
+                </Button>
+              </div>
 
-              <TabsTrigger value="documents" className="gap-2">
-                <FileText className="size-4" />
-                Documents
-              </TabsTrigger>
-            </TabsList>
+              <div className="mt-4">
+                <div className="mb-2 flex flex-wrap items-center gap-3">
+                  <h1 className="text-2xl font-bold">{member.name}</h1>
+                  <Badge variant="outline" className={vc.badge}>{vc.label}</Badge>
+                  <Badge variant="outline" className={rc.badge}>{rc.label}</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">{member.email}</p>
+                {member.occupation && (
+                  <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                    <Briefcase className="size-3" />{member.occupation}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-            <TabsContent value="contributions">
-              <MemberContributionsTab contributions={contributions} />
-            </TabsContent>
+          {/* Verify toggle */}
+          <Card className="border-border">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base font-semibold">Membership Verification</Label>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {member.is_verified
+                      ? 'This member has been verified by an admin.'
+                      : 'Toggle to verify this member\'s account.'}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <ShieldCheck className={`size-5 ${member.is_verified ? 'text-emerald-500' : 'text-muted-foreground'}`} />
+                  <Switch
+                    checked={member.is_verified}
+                    onCheckedChange={handleToggleVerify}
+                    disabled={verifying}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            <TabsContent value="activity">
-              <MemberActivityTab activities={activities} />
-            </TabsContent>
-
-            <TabsContent value="documents">
-              <MemberDocumentsTab />
-            </TabsContent>
-          </Tabs>
         </div>
 
+        {/* ── Right column ──────────────────────────────────────── */}
         <div className="space-y-6">
-          <MemberQuickStats member={member} contributions={contributions} />
-          <MemberContactCard member={member} />
-          <MemberPersonalDetailsCard member={member} />
-          <MemberEmergencyContactCard contact={member.emergencyContact} />
+
+          {/* Contact */}
+          <Card className="border-border">
+            <CardHeader>
+              <CardTitle className="text-lg">Contact</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <a href={`mailto:${member.email}`}
+                className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
+                <div className="rounded-lg bg-primary/10 p-2">
+                  <Mail className="size-4 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-muted-foreground">Email</p>
+                  <p className="truncate text-sm font-medium">{member.email}</p>
+                </div>
+              </a>
+
+              {member.ghana_phone && (
+                <a href={`tel:${member.ghana_phone}`}
+                  className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
+                  <div className="rounded-lg bg-emerald-500/10 p-2">
+                    <Phone className="size-4 text-emerald-500" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">🇬🇭 Ghana</p>
+                    <p className="text-sm font-medium">{formatPhone(member.ghana_phone)}</p>
+                  </div>
+                </a>
+              )}
+
+              {member.french_phone && (
+                <a href={`tel:${member.french_phone}`}
+                  className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
+                  <div className="rounded-lg bg-blue-500/10 p-2">
+                    <Phone className="size-4 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">🇫🇷 France</p>
+                    <p className="text-sm font-medium">{formatPhone(member.french_phone)}</p>
+                  </div>
+                </a>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Personal details */}
+          <Card className="border-border">
+            <CardHeader>
+              <CardTitle className="text-lg">Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: 'Region',       value: member.region },
+                { label: 'City',         value: member.city },
+                { label: 'Gender',       value: member.gender?.replace('_', ' ') },
+                { label: 'Occupation',   value: member.occupation },
+                { label: 'Member type',  value: member.member_type },
+                { label: 'Member since', value: formatMemberSince(member.member_since) },
+                { label: 'Joined',       value: formatDate(member.created_at) },
+              ].map(({ label, value }) => value ? (
+                <div key={label} className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">{label}</span>
+                  <span className="text-sm font-medium capitalize">{value}</span>
+                </div>
+              ) : null)}
+            </CardContent>
+          </Card>
+
         </div>
       </div>
 
-      <MemberEditDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        formData={formData}
-        setFormData={setFormData}
-        memberImage={memberImage}
-        setMemberImage={setMemberImage}
-        onImageUpload={handleImageUpload}
-        onSave={handleSave}
-      />
-
-      <MemberMessageDialog
-        open={isMessageDialogOpen}
-        onOpenChange={setIsMessageDialogOpen}
-        member={member}
-        message={message}
-        setMessage={setMessage}
-        onSend={handleSendMessage}
-      />
+<MemberEditDialog
+  open={editOpen}
+  onOpenChange={setEditOpen}
+  formData={formData}
+  setFormData={setFormData}
+  memberImage={memberImage}
+  setMemberImage={setMemberImage}
+  onImageUpload={handleImageUpload}
+  onSave={async () => {
+    await update(formData);
+    setEditOpen(false);
+  }}
+/>
 
       <DeleteMemberDialog
-        member={isDeleteDialogOpen ? member : null}
-        onClose={() => setIsDeleteDialogOpen(false)}
+        member={deleteOpen ? member : null}
+        onClose={() => setDeleteOpen(false)}
         onConfirm={handleDelete}
       />
     </DashboardLayout>
