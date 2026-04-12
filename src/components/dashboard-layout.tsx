@@ -37,7 +37,7 @@ export function DashboardLayout({
     month: 'long',
     day: 'numeric',
   })
-  const greetingName = user?.givenName ?? user?.name ?? 'Admin'
+  const greetingName = user?.name ?? user?.name ?? 'Admin'
 
   return (
     <SidebarProvider>
@@ -97,7 +97,7 @@ export function DashboardLayout({
               size="icon"
               className="relative size-8 rounded-lg bg-secondary border border-border hover:bg-secondary/80 text-muted-foreground hover:text-foreground"
             >
-              <Bell className="size-[15px]" />
+              <Bell className="size-3.75" />
               <Badge className="absolute -right-1 -top-1 size-4 rounded-full p-0 text-[9px] font-semibold bg-primary text-primary-foreground border-0">
                 3
               </Badge>

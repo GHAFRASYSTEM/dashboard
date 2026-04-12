@@ -126,7 +126,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 
           {/* Profile header */}
           <Card className="overflow-hidden border-border">
-            <div className="relative h-36 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/5" />
+            <div className="relative h-36 bg-linear-to-br from-primary/30 via-primary/20 to-primary/5" />
             <CardContent className="relative pt-0 pb-6">
               <div className="absolute -top-14 left-6">
                 <div className="relative">

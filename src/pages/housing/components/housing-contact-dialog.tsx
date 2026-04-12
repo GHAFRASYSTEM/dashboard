@@ -21,11 +21,11 @@ interface Props {
 export function HousingContactDialog({ open, onOpenChange, housing }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>Contact Agent</DialogTitle>
           <DialogDescription>
-            Send a message to {housing.contactName} about {housing.title}
+            Send a message to {housing.address} about {housing.title}
           </DialogDescription>
         </DialogHeader>
 
@@ -59,7 +59,7 @@ export function HousingContactDialog({ open, onOpenChange, housing }: Props) {
               id="message"
               placeholder="I'm interested in this property..."
               defaultValue={`Hi, I'm interested in the ${housing.title} listed at $${housing.price.toLocaleString()}/month. Please contact me with more information.`}
-              className="min-h-[120px]"
+              className="min-h-30"
             />
           </div>
 

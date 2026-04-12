@@ -57,7 +57,7 @@ export function MemberEditDialog({
 }: MemberEditDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-card border-border sm:max-w-150 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Member</DialogTitle>
           <DialogDescription>Update member information</DialogDescription>
@@ -252,7 +252,7 @@ export function MemberEditDialog({
                 id="edit-bio"
                 value={formData.bio}
                 onChange={(e) => setFormData((prev: any) => ({ ...prev, bio: e.target.value }))}
-                className="bg-background border-border min-h-[120px]"
+                className="bg-background border-border min-h-30"
               />
             </div>
           </div>

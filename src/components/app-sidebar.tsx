@@ -8,8 +8,6 @@ import {
   Users,
   DollarSign,
   Briefcase,
-  Images,
-  Bell,
   LogOut,
   UserCog,
 } from 'lucide-react'
@@ -31,8 +29,8 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 
 const mainNavItems = [
   { title: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { title: 'Trends', href: '/trends', icon: TrendingUp },
   { title: 'Housing', href: '/housing', icon: Home },
+    { title: 'Housing Requests', href: '/housing/requests', icon: TrendingUp },
   { title: 'Announcements', href: '/announcements', icon: Megaphone },
   { title: 'Marketing Services', href: '/marketing', icon: ShoppingBag },
 ]
@@ -42,11 +40,6 @@ const managementItems = [
   { title: 'Members', href: '/members', icon: Users },
   { title: 'Contributions', href: '/contributions', icon: DollarSign },
   { title: 'Internships', href: '/internships', icon: Briefcase },
-]
-
-const mediaItems = [
-  { title: 'Gallery', href: '/gallery', icon: Images },
-  { title: 'Notifications', href: '/notifications', icon: Bell },
 ]
 
 export function AppSidebar() {
@@ -96,7 +89,7 @@ export function AppSidebar() {
                     className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
                   >
                     <Link to={item.href}>
-                      <item.icon className="size-[15px] shrink-0" />
+                      <item.icon className="size-3.75 shrink-0" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -124,7 +117,7 @@ export function AppSidebar() {
                     className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
                   >
                     <Link to={item.href}>
-                      <item.icon className="size-[15px] shrink-0" />
+                      <item.icon className="size-3.75 shrink-0" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -134,33 +127,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className="mx-3 my-0 shrink-0 bg-sidebar-border" />
 
-        {/* Media */}
-        <SidebarGroup className="shrink-0 px-3 py-3">
-          <SidebarGroupLabel className="mb-1 px-2 text-[10px] font-medium uppercase tracking-widest text-sidebar-foreground/30">
-            Media & Comms
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {mediaItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.title}
-                    className="h-9 rounded-lg px-2.5 text-[13.5px] font-normal text-sidebar-foreground/60 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground data-[active=true]:bg-primary/10 data-[active=true]:font-medium data-[active=true]:text-primary"
-                  >
-                    <Link to={item.href}>
-                      <item.icon className="size-[15px] shrink-0" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
 
         {/* Spacer pushes footer anchor to bottom on tall screens */}
         <div className="flex-1" />
@@ -190,7 +157,7 @@ export function AppSidebar() {
             aria-label="Sign out"
             title="Sign out"
           >
-            <LogOut className="size-[15px]" />
+            <LogOut className="size-3.75" />
           </button>
         </div>
       </SidebarFooter>

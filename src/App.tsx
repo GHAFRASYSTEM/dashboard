@@ -3,7 +3,6 @@ import HomePage from './pages/home'
 import AnnouncementsPage from './pages/announcements/page'
 import ContributionsPage from './pages/contributions/page'
 import ExecutivesPage from './pages/executives/page'
-import GalleryPage from './pages/gallery/page'
 import HousingPage from './pages/housing/page'
 import InternshipsPage from './pages/internships/page'
 import MarketingPage from './pages/marketing/page'
@@ -18,6 +17,7 @@ import MemberDetailPage from './pages/members/membersdetailpage'
 import LoginPage from './pages/auth/login'
 import { ProtectedRoute } from './auth/protected-route'
 import AuthCallback from './auth/AuthCallback'
+import RoomRequestsPage from './pages/housing/RoomRequestsPage'
 
 export default function App() {
   return (
@@ -30,9 +30,11 @@ export default function App() {
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/contributions" element={<ContributionsPage />} />
         <Route path="/executives" element={<ExecutivesPage />} />
-        <Route path="/gallery" element={<GalleryPage />} />
+
         <Route path="/housing" element={<HousingPage />} />
         <Route path="/housing/:id" element={<HousingDetailPage />} />
+        <Route path="/housing/requests"  element={<RoomRequestsPage />} />
+
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />

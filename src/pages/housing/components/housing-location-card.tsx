@@ -23,7 +23,7 @@ export function HousingLocationCard({ location, address }: Props) {
           </div>
         </div>
 
-        <div className="mt-4 aspect-[2/1] overflow-hidden rounded-xl bg-muted">
+        <div className="mt-4 aspect-2/1 overflow-hidden rounded-xl bg-muted">
           <div className="flex h-full items-center justify-center text-muted-foreground">
             <MapPin className="mr-2 size-5" />
             Map view coming soon
