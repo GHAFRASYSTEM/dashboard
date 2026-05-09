@@ -10,7 +10,6 @@ import MembersPage from './pages/members/page'
 import TrendsPage from './pages/trends/page'
 import TrendDetailPage from './pages/trends/trenddetailpage'
 import HousingDetailPage from './pages/housing/housingdetailpage'
-import AnnouncementDetailPage from './pages/announcements/announcementdetailpage'
 import MarketplaceDetailPage from './pages/marketing/marketingdetailpage'
 import ExecutiveDetailPage from './pages/executives/executivesdetailpage'
 import MemberDetailPage from './pages/members/membersdetailpage'
@@ -40,7 +39,6 @@ export default function App() {
         <Route path="/members" element={<MembersPage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path="/trends/:id" element={<TrendDetailPage />} />
-        <Route path="/announcements/:id" element={<AnnouncementDetailPage />} />
         <Route path="/marketing/:id" element={<MarketplaceDetailPage />} />
         <Route path="/executives/:id" element={<ExecutiveDetailPage />} />
         <Route path="/members/:id" element={<MemberDetailPage />} />

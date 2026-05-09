@@ -33,49 +33,47 @@ export default function MemberDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [verifying,  setVerifying]  = useState(false);
 
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
   name: '',
   email: '',
-  phone: '',
-  location: '',
-  address: '',
-  position: '',
-  department: '',
-  bio: '',
+  ghana_phone: '',
+  french_phone: '',
+  city: '',
+  region: '',
+  gender: '',
   occupation: '',
-  employer: '',
-  status: 'active' as 'active' | 'inactive' | 'pending',
-});
+  role: '',
+  member_type: '',
+})
 
-const [memberImage, setMemberImage] = useState('');
+const [memberImage, setMemberImage]   = useState('')
+const [imageFile,   setImageFile]     = useState<File | null>(null)
 
 useEffect(() => {
   if (member) {
     setFormData({
-      name: member.name || '',
-      email: member.email || '',
-      phone: member.ghana_phone || '',
-      location: member.city || '',
-      address: '',
-      position: '',
-      department: '',
-      bio: '',
-      occupation: member.occupation || '',
-      employer: '',
-      status: 'active',
-    });
-
-    setMemberImage(member.photo_url || '');
+      name:        member.name        || '',
+      email:       member.email       || '',
+      ghana_phone: member.ghana_phone || '',
+      french_phone:member.french_phone|| '',
+      city:        member.city        || '',
+      region:      member.region      || '',
+      gender:      member.gender      || '',
+      occupation:  member.occupation  || '',
+      role:        member.role        || 'member',
+      member_type: member.member_type || 'full',
+    })
+    setMemberImage(member.photo_url || '')
   }
-}, [member]);
+}, [member])
 
 const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
+  const file = e.target.files?.[0]
   if (file) {
-    const url = URL.createObjectURL(file);
-    setMemberImage(url);
+    setImageFile(file)
+    setMemberImage(URL.createObjectURL(file))
   }
-};
+}
 
   if (loading) return (
     <DashboardLayout title="Member Profile" breadcrumbs={[{ label: 'Members', href: '/members' }, { label: '…' }]}>
@@ -103,6 +101,7 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     navigate('/members');
   };
 
+  
   return (
     <DashboardLayout
       title="Member Profile"
@@ -273,10 +272,36 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   memberImage={memberImage}
   setMemberImage={setMemberImage}
   onImageUpload={handleImageUpload}
-  onSave={async () => {
-    await update(formData);
-    setEditOpen(false);
-  }}
+onSave={async () => {
+  let photo_url: string | undefined = memberImage.startsWith('blob:') ? undefined : memberImage
+
+  if (imageFile) {
+    const base64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload  = () => resolve((reader.result as string).split(',')[1])
+      reader.onerror = reject
+      reader.readAsDataURL(imageFile)
+    })
+    photo_url = base64
+  }
+
+  await update({
+    name:         formData.name,
+    email:        formData.email,
+    ghana_phone:  formData.ghana_phone,
+    french_phone: formData.french_phone,
+    city:         formData.city,
+    region:       formData.region        as 'Accra' | 'Kumasi' | 'Tamale' | 'Sunyani' | null,
+    gender:       formData.gender        as 'male' | 'female' | 'prefer_not_to_say' | null,
+    occupation:   formData.occupation,
+    role:         formData.role          as 'member' | 'admin' | 'moderator',
+    member_type:  formData.member_type   as 'full' | 'associate' | 'honorary',
+    ...(photo_url !== undefined ? { photo_url } : {}),
+  })
+
+  setImageFile(null)
+  setEditOpen(false)
+}}
 />
 
       <DeleteMemberDialog

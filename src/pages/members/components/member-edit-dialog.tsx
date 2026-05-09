@@ -1,26 +1,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
 import { Button } from '../../../components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogDescription,
+  DialogFooter, DialogHeader, DialogTitle,
 } from '../../../components/ui/dialog'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem,
+  SelectTrigger, SelectValue,
 } from '../../../components/ui/select'
-import { Textarea } from '../../../components/ui/textarea'
 import { Upload, Users, X } from 'lucide-react'
-import { departmentOptions, positionOptions } from '../data/mock-members'
 import { getInitials } from '../utils/member-utils'
+
+const OCCUPATION_OPTIONS = [
+  'Student', 'Intern', 'Trainee',
+  'Nurse', 'Doctor', 'Dentist', 'Pharmacist', 'Midwife',
+  'Developer', 'Software Engineer', 'Data Scientist', 'Cybersecurity Specialist', 'IT Support',
+  'Accountant', 'Manager', 'Consultant', 'HR', 'Administrator',
+  'Designer', 'Photographer', 'Videographer', 'Journalist',
+  'Driver', 'Chef', 'Mechanic', 'Electrician', 'Plumber',
+  'Lawyer', 'Architect', 'Entrepreneur', 'Social Worker',
+  'Other',
+]
 
 interface MemberEditDialogProps {
   open: boolean
@@ -28,15 +30,14 @@ interface MemberEditDialogProps {
   formData: {
     name: string
     email: string
-    phone: string
-    location: string
-    address: string
-    position: string
-    department: string
-    bio: string
+    ghana_phone: string
+    french_phone: string
+    city: string
+    region: string
+    gender: string
     occupation: string
-    employer: string
-    status: 'active' | 'inactive' | 'pending'
+    role: string
+    member_type: string
   }
   setFormData: React.Dispatch<React.SetStateAction<any>>
   memberImage: string
@@ -46,15 +47,17 @@ interface MemberEditDialogProps {
 }
 
 export function MemberEditDialog({
-  open,
-  onOpenChange,
-  formData,
-  setFormData,
-  memberImage,
-  setMemberImage,
-  onImageUpload,
-  onSave,
+  open, onOpenChange,
+  formData, setFormData,
+  memberImage, setMemberImage,
+  onImageUpload, onSave,
 }: MemberEditDialogProps) {
+  const field = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setFormData((prev: any) => ({ ...prev, [key]: e.target.value }))
+
+  const select = (key: string) => (v: string) =>
+    setFormData((prev: any) => ({ ...prev, [key]: v }))
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-card border-border sm:max-w-150 max-h-[90vh] overflow-y-auto">
@@ -64,23 +67,18 @@ export function MemberEditDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Avatar */}
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
               <Avatar className="size-28 border-4 border-border">
                 <AvatarImage src={memberImage} alt="Member" className="object-cover" />
                 <AvatarFallback className="bg-muted text-2xl">
-                  {formData.name ? (
-                    getInitials(formData.name)
-                  ) : (
-                    <Users className="size-10 text-muted-foreground" />
-                  )}
+                  {formData.name ? getInitials(formData.name) : <Users className="size-10 text-muted-foreground" />}
                 </AvatarFallback>
               </Avatar>
-
               {memberImage && (
                 <Button
-                  variant="destructive"
-                  size="icon"
+                  variant="destructive" size="icon"
                   className="absolute -top-2 -right-2 size-6 rounded-full"
                   onClick={() => setMemberImage('')}
                 >
@@ -88,180 +86,125 @@ export function MemberEditDialog({
                 </Button>
               )}
             </div>
-
-            <div>
-              <Label htmlFor="edit-member-image" className="cursor-pointer">
-                <div className="flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 transition-colors hover:border-primary/50">
-                  <Upload className="size-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Change Photo</span>
-                </div>
-              </Label>
-
-              <Input
-                id="edit-member-image"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={onImageUpload}
-              />
-            </div>
+            <Label htmlFor="edit-member-image" className="cursor-pointer">
+              <div className="flex items-center gap-2 rounded-lg border border-dashed border-border px-4 py-2 transition-colors hover:border-primary/50">
+                <Upload className="size-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Change Photo</span>
+              </div>
+            </Label>
+            <Input id="edit-member-image" type="file" accept="image/*" className="hidden" onChange={onImageUpload} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
+            {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="edit-name">Full Name</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, name: e.target.value }))}
-                className="bg-background border-border"
-              />
+              <Label>Full Name</Label>
+              <Input value={formData.name} onChange={field('name')} className="bg-background border-border" />
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="edit-email">Email</Label>
-              <Input
-                id="edit-email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, email: e.target.value }))}
-                className="bg-background border-border"
-              />
+              <Label>Email</Label>
+              <Input type="email" value={formData.email} onChange={field('email')} className="bg-background border-border" />
             </div>
 
+            {/* Ghana Phone */}
             <div className="space-y-2">
-              <Label htmlFor="edit-phone">Phone</Label>
-              <Input
-                id="edit-phone"
-                value={formData.phone}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, phone: e.target.value }))}
-                className="bg-background border-border"
-              />
+              <Label>🇬🇭 Ghana Phone</Label>
+              <Input value={formData.ghana_phone} onChange={field('ghana_phone')} className="bg-background border-border" />
             </div>
 
+            {/* French Phone */}
             <div className="space-y-2">
-              <Label htmlFor="edit-location">Location</Label>
-              <Input
-                id="edit-location"
-                value={formData.location}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({ ...prev, location: e.target.value }))
-                }
-                className="bg-background border-border"
-              />
+              <Label>🇫🇷 French Phone</Label>
+              <Input value={formData.french_phone} onChange={field('french_phone')} className="bg-background border-border" />
             </div>
 
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="edit-address">Full Address</Label>
-              <Input
-                id="edit-address"
-                value={formData.address}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({ ...prev, address: e.target.value }))
-                }
-                className="bg-background border-border"
-              />
+            {/* City */}
+            <div className="space-y-2">
+              <Label>City</Label>
+              <Input value={formData.city} onChange={field('city')} className="bg-background border-border" />
             </div>
 
+            {/* Region */}
             <div className="space-y-2">
-              <Label htmlFor="edit-position">Position</Label>
-              <Select
-                value={formData.position}
-                onValueChange={(v) => setFormData((prev: any) => ({ ...prev, position: v }))}
-              >
+              <Label>Region</Label>
+              <Select value={formData.region} onValueChange={select('region')}>
                 <SelectTrigger className="bg-background border-border">
-                  <SelectValue placeholder="Select position" />
+                  <SelectValue placeholder="Select region" />
                 </SelectTrigger>
                 <SelectContent>
-                  {positionOptions.map((position) => (
-                    <SelectItem key={position} value={position}>
-                      {position}
-                    </SelectItem>
+                  {['Accra', 'Kumasi', 'Tamale', 'Sunyani'].map(r => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
+            {/* Gender */}
             <div className="space-y-2">
-              <Label htmlFor="edit-department">Department</Label>
-              <Select
-                value={formData.department}
-                onValueChange={(v) =>
-                  setFormData((prev: any) => ({ ...prev, department: v }))
-                }
-              >
+              <Label>Gender</Label>
+              <Select value={formData.gender} onValueChange={select('gender')}>
                 <SelectTrigger className="bg-background border-border">
-                  <SelectValue placeholder="Select department" />
+                  <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  {departmentOptions.map((department) => (
-                    <SelectItem key={department} value={department}>
-                      {department}
-                    </SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Occupation */}
+            <div className="space-y-2">
+              <Label>Occupation</Label>
+              <Select value={formData.occupation} onValueChange={select('occupation')}>
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder="Select occupation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {OCCUPATION_OPTIONS.map(o => (
+                    <SelectItem key={o} value={o}>{o}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
+            {/* Role */}
             <div className="space-y-2">
-              <Label htmlFor="edit-occupation">Occupation</Label>
-              <Input
-                id="edit-occupation"
-                value={formData.occupation}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({ ...prev, occupation: e.target.value }))
-                }
-                className="bg-background border-border"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-employer">Employer</Label>
-              <Input
-                id="edit-employer"
-                value={formData.employer}
-                onChange={(e) =>
-                  setFormData((prev: any) => ({ ...prev, employer: e.target.value }))
-                }
-                className="bg-background border-border"
-              />
-            </div>
-
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="edit-status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(v: 'active' | 'inactive' | 'pending') =>
-                  setFormData((prev: any) => ({ ...prev, status: v }))
-                }
-              >
+              <Label>Role</Label>
+              <Select value={formData.role} onValueChange={select('role')}>
                 <SelectTrigger className="bg-background border-border">
-                  <SelectValue />
+                  <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="moderator">Moderator</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="edit-bio">Bio</Label>
-              <Textarea
-                id="edit-bio"
-                value={formData.bio}
-                onChange={(e) => setFormData((prev: any) => ({ ...prev, bio: e.target.value }))}
-                className="bg-background border-border min-h-30"
-              />
+            {/* Member type */}
+            <div className="space-y-2">
+              <Label>Member Type</Label>
+              <Select value={formData.member_type} onValueChange={select('member_type')}>
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full">Full</SelectItem>
+                  <SelectItem value="associate">Associate</SelectItem>
+                  <SelectItem value="honorary">Honorary</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={onSave}>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
