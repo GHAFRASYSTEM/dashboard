@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import HomePage from './pages/home'
 import AnnouncementsPage from './pages/announcements/page'
 import ContributionsPage from './pages/contributions/page'
-import ExecutivesPage from './pages/executives/page'
 import HousingPage from './pages/housing/page'
 import InternshipsPage from './pages/internships/page'
 import MarketingPage from './pages/marketing/page'
@@ -11,7 +10,6 @@ import TrendsPage from './pages/trends/page'
 import TrendDetailPage from './pages/trends/trenddetailpage'
 import HousingDetailPage from './pages/housing/housingdetailpage'
 import MarketplaceDetailPage from './pages/marketing/marketingdetailpage'
-import ExecutiveDetailPage from './pages/executives/executivesdetailpage'
 import MemberDetailPage from './pages/members/membersdetailpage'
 import LoginPage from './pages/auth/login'
 import { ProtectedRoute } from './auth/protected-route'
@@ -28,7 +26,6 @@ export default function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/contributions" element={<ContributionsPage />} />
-        <Route path="/executives" element={<ExecutivesPage />} />
 
         <Route path="/housing" element={<HousingPage />} />
         <Route path="/housing/:id" element={<HousingDetailPage />} />
@@ -40,7 +37,6 @@ export default function App() {
         <Route path="/trends" element={<TrendsPage />} />
         <Route path="/trends/:id" element={<TrendDetailPage />} />
         <Route path="/marketing/:id" element={<MarketplaceDetailPage />} />
-        <Route path="/executives/:id" element={<ExecutiveDetailPage />} />
         <Route path="/members/:id" element={<MemberDetailPage />} />
       </Route>
 

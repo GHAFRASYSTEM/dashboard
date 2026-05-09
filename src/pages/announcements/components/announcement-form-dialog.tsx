@@ -81,7 +81,12 @@ export function AnnouncementFormDialog({
             </Label>
             {/* Hidden input so FormData picks it up */}
             <input type="hidden" name="category" value={category} />
-            <Select value={category} onValueChange={setCategory}>
+            <Select
+  value={category}
+  onValueChange={(value) =>
+    setCategory(value as Announcement['category'])
+  }
+>
               <SelectTrigger id="category" className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>

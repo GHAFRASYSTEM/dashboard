@@ -1,19 +1,35 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card'
-import { ExternalLink, Mail, Phone } from 'lucide-react'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../../components/ui/card'
+
+import {
+  ExternalLink,
+  Mail,
+  Phone,
+} from 'lucide-react'
+
 import type { Member } from '../types/members'
 
 interface MemberContactCardProps {
   member: Member
 }
 
-export function MemberContactCard({ member }: MemberContactCardProps) {
+export function MemberContactCard({
+  member,
+}: MemberContactCardProps) {
   return (
     <Card className="border-border">
       <CardHeader>
-        <CardTitle className="text-lg">Contact Information</CardTitle>
+        <CardTitle className="text-lg">
+          Contact Information
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* EMAIL */}
         <a
           href={`mailto:${member.email}`}
           className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/30"
@@ -23,42 +39,80 @@ export function MemberContactCard({ member }: MemberContactCardProps) {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm text-muted-foreground">Email</p>
-            <p className="truncate font-medium">{member.email}</p>
+            <p className="text-sm text-muted-foreground">
+              Email
+            </p>
+
+            <p className="truncate font-medium">
+              {member.email}
+            </p>
           </div>
 
           <ExternalLink className="size-4 text-muted-foreground" />
         </a>
 
-        <a
-          href={`tel:${member.phone}`}
-          className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/30"
-        >
-          <div className="rounded-lg bg-emerald-500/10 p-2">
-            <Phone className="size-4 text-emerald-500" />
-          </div>
+        {/* GHANA PHONE */}
+        {member.ghana_phone && (
+          <a
+            href={`tel:${member.ghana_phone}`}
+            className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/30"
+          >
+            <div className="rounded-lg bg-emerald-500/10 p-2">
+              <Phone className="size-4 text-emerald-500" />
+            </div>
 
-          <div className="min-w-0 flex-1">
-            <p className="text-sm text-muted-foreground">Phone</p>
-            <p className="font-medium">{member.phone}</p>
-          </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted-foreground">
+                Ghana Phone
+              </p>
 
-          <ExternalLink className="size-4 text-muted-foreground" />
-        </a>
+              <p className="font-medium">
+                {member.ghana_phone}
+              </p>
+            </div>
 
-        <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-          <div className="rounded-lg bg-amber-500/10 p-2">
-            <span className="text-sm font-semibold text-amber-500">L</span>
-          </div>
+            <ExternalLink className="size-4 text-muted-foreground" />
+          </a>
+        )}
 
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground">Location</p>
-            <p className="font-medium">{member.location}</p>
-            {member.address && (
-              <p className="mt-1 text-sm text-muted-foreground">{member.address}</p>
-            )}
+        {/* FRENCH PHONE */}
+        {member.french_phone && (
+          <a
+            href={`tel:${member.french_phone}`}
+            className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/30"
+          >
+            <div className="rounded-lg bg-blue-500/10 p-2">
+              <Phone className="size-4 text-blue-500" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-muted-foreground">
+                French Phone
+              </p>
+
+              <p className="font-medium">
+                {member.french_phone}
+              </p>
+            </div>
+
+            <ExternalLink className="size-4 text-muted-foreground" />
+          </a>
+        )}
+
+        {/* LOCATION */}
+        {(member.city || member.region) && (
+          <div className="rounded-lg border border-border p-3">
+            <p className="text-sm text-muted-foreground">
+              Location
+            </p>
+
+            <p className="font-medium">
+              {[member.city, member.region]
+                .filter(Boolean)
+                .join(', ')}
+            </p>
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
