@@ -6,7 +6,6 @@ import {
   ChevronRight,
   Eye,
   Heart,
-  ImageIcon,
   Mail,
   Package,
   Phone,
@@ -68,7 +67,7 @@ export function MarketplaceViewDialog({
         <div className="space-y-6">
           {ad.images.length > 0 && (
             <div className="space-y-3">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-muted">
+              <div className="relative aspect-16/10 overflow-hidden rounded-lg bg-muted">
                 <img
                   src={ad.images[currentImageIndex]}
                   alt={ad.title}
@@ -119,7 +118,7 @@ export function MarketplaceViewDialog({
                   {ad.images.map((img, index) => (
                     <button
                       key={index}
-                      className={`relative size-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
+                      className={`relative size-16 shrink-0 overflow-hidden rounded-lg border-2 transition-colors ${
                         index === currentImageIndex ? 'border-primary' : 'border-transparent'
                       }`}
                       onClick={() => onImageChange(index)}

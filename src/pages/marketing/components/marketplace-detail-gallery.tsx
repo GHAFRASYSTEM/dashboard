@@ -2,7 +2,6 @@ import { ChevronLeft, ChevronRight, Heart, ImageIcon, Share2, Star } from 'lucid
 import { Badge } from '../../../components/ui/badge'
 import { Button } from '../../../components/ui/button'
 import type { MarketplaceAd } from '../types/marketplace'
-import { statusConfig } from '../utils/marketplace-config'
 
 interface Props {
   ad: MarketplaceAd
@@ -27,11 +26,10 @@ export function MarketplaceDetailGallery({
   onNext,
   onSelectImage,
 }: Props) {
-  const StatusIcon = statusConfig[ad.status].icon
 
   return (
     <div className="overflow-hidden rounded-2xl border-border">
-      <div className="relative aspect-[16/10] bg-muted">
+      <div className="relative aspect-16/10 bg-muted">
         {ad.images.length > 0 ? (
           <>
             <img
@@ -109,7 +107,7 @@ export function MarketplaceDetailGallery({
             {ad.images.map((image, index) => (
               <button
                 key={index}
-                className={`relative size-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
+                className={`relative size-20 shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
                   index === currentImageIndex
                     ? 'border-primary ring-2 ring-primary/20'
                     : 'border-border hover:border-primary/50'

@@ -2,7 +2,7 @@
 
 import { useState, type SetStateAction } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Calendar, CheckCircle, Eye, Heart, Tag } from 'lucide-react'
+import { Calendar, Eye, Heart, Tag } from 'lucide-react'
 import { DashboardLayout } from '../../components/dashboard-layout'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'

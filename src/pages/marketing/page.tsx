@@ -46,7 +46,6 @@ export default function MarketplacePage() {
 
   const stats = getMarketplaceStats(ads)
   const filteredAds = filterMarketplaceAds(ads, selectedCategory, statusFilter, searchQuery)
-  const featuredAds = filteredAds.filter((ad) => ad.featured && ad.status === 'approved')
 
   const handleApprove = (id: string) => {
     setAds((prev) =>

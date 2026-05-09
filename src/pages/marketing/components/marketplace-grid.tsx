@@ -1,4 +1,3 @@
-import { format } from 'date-fns'
 import {
   Check,
   Eye,
@@ -48,7 +47,7 @@ export function MarketplaceGrid({
             className="group cursor-pointer overflow-hidden border-border transition-all duration-300 hover:border-primary/30"
             onClick={() => onView(ad)}
           >
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+            <div className="relative aspect-4/3 overflow-hidden bg-muted">
               {ad.images[0] ? (
                 <img
                   src={ad.images[0]}
@@ -163,7 +162,7 @@ export function MarketplaceGrid({
                     <AvatarImage src={ad.avatar} />
                     <AvatarFallback className="text-xs">{ad.submittedBy[0]}</AvatarFallback>
                   </Avatar>
-                  <span className="max-w-[80px] truncate text-xs text-muted-foreground">
+                  <span className="max-w-20 truncate text-xs text-muted-foreground">
                     {ad.submittedBy}
                   </span>
                 </div>

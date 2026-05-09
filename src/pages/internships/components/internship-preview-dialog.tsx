@@ -16,7 +16,6 @@ import {
   Phone,
   Send,
   Share2,
-  Users,
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '../../../components/ui/avatar'
 import { Badge } from '../../../components/ui/badge'
@@ -46,7 +45,7 @@ export function InternshipPreviewDialog({
 }: Props) {
   return (
     <Dialog open={!!internship} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden border-border bg-card p-0 sm:max-w-[900px]">
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden border-border bg-card p-0 sm:max-w-225">
         <DialogHeader className="sr-only">
           <DialogTitle>{internship?.title}</DialogTitle>
           <DialogDescription>
@@ -56,7 +55,7 @@ export function InternshipPreviewDialog({
 
         {internship && (
           <>
-            <div className="border-b border-border bg-gradient-to-r from-primary/5 via-transparent to-transparent p-6">
+            <div className="border-b border-border bg-linear-to-r from-primary/5 via-transparent to-transparent p-6">
               <div className="flex items-start gap-4">
                 <Avatar className="size-16 rounded-xl ring-2 ring-border">
                   <AvatarImage src={internship.companyLogo} alt={internship.company} />

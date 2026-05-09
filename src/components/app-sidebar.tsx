@@ -9,7 +9,6 @@ import {
   DollarSign,
   Briefcase,
   LogOut,
-  UserCog,
 } from 'lucide-react'
 import { useAuth } from '../../context/auth-context'
 import {

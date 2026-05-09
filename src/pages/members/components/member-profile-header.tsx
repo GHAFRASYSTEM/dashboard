@@ -62,7 +62,7 @@ export function MemberProfileHeader({
   return (
     <Card className="overflow-hidden border-border">
       {/* COVER */}
-      <div className="relative h-40 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/5">
+      <div className="relative h-40 bg-linear-to-br from-primary/30 via-primary/20 to-primary/5">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(120,119,198,0.15),transparent)]" />
 
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(120,119,198,0.1),transparent)]" />

@@ -42,7 +42,10 @@ export function MemberMessageDialog({
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-3 rounded-lg bg-muted/30 p-3">
             <Avatar className="size-10">
-              <AvatarImage src={member.image} alt={member.name} />
+             <AvatarImage
+  src={member.photo_url ?? ''}
+  alt={member.name}
+/>
               <AvatarFallback>{getInitials(member.name)}</AvatarFallback>
             </Avatar>
 

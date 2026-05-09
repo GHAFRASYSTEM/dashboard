@@ -5,8 +5,6 @@ import {
   Eye,
   Heart,
   ImageIcon,
-  List,
-  Mail,
   MapPin,
   MoreVertical,
   Trash2,
@@ -54,7 +52,7 @@ export function MarketplaceList({
           >
             <CardContent className="p-0">
               <div className="flex gap-4">
-                <div className="relative aspect-[4/3] w-48 flex-shrink-0 overflow-hidden bg-muted">
+                <div className="relative aspect-4/3 w-48 shrink-0 overflow-hidden bg-muted">
                   {ad.images[0] ? (
                     <img
                       src={ad.images[0]}
