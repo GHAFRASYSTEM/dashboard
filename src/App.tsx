@@ -12,6 +12,7 @@ import HousingDetailPage from './pages/housing/housingdetailpage'
 import MarketplaceDetailPage from './pages/marketing/marketingdetailpage'
 import MemberDetailPage from './pages/members/membersdetailpage'
 import LoginPage from './pages/auth/login'
+import PickupsPage from './pages/pickups/page'
 import { ProtectedRoute } from './auth/protected-route'
 import AuthCallback from './auth/AuthCallback'
 import RoomRequestsPage from './pages/housing/RoomRequestsPage'
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />
         <Route path="/trends" element={<TrendsPage />} />
+        <Route path='/pickup' element={<PickupsPage/>}/>
         <Route path="/trends/:id" element={<TrendDetailPage />} />
         <Route path="/marketing/:id" element={<MarketplaceDetailPage />} />
         <Route path="/members/:id" element={<MemberDetailPage />} />

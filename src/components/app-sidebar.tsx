@@ -38,6 +38,7 @@ const managementItems = [
   { title: 'Members', href: '/members', icon: Users },
   { title: 'Contributions', href: '/contributions', icon: DollarSign },
   { title: 'Internships', href: '/internships', icon: Briefcase },
+    { title: 'Pickup', href: '/pickup', icon: ShoppingBag },
 ]
 
 export function AppSidebar() {
