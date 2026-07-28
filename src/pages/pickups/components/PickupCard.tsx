@@ -34,7 +34,21 @@ export function PickupCard({ request, onAssign, onComplete, onCancel }: Props) {
 
       <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
         <InfoRow icon={<Train className="size-3.5" />} label={`${request.train_number} · ${request.gare}`} />
-        <InfoRow icon={<Phone className="size-3.5" />} label={request.phone} />
+        {whatsappUrl(request.phone, 'GH') ? (
+          <a
+            href={whatsappUrl(request.phone, 'GH')!}
+            target="_blank" rel="noreferrer"
+            title="Message on WhatsApp"
+            className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-[#1DA851]"
+          >
+            <Phone className="size-3.5" />
+            <span className="truncate text-foreground/80 underline decoration-dotted underline-offset-2">
+              {request.phone}
+            </span>
+          </a>
+        ) : (
+          <InfoRow icon={<Phone className="size-3.5" />} label={request.phone} />
+        )}
         <InfoRow icon={<MapPin className="size-3.5" />} label={request.house_address} span />
         {request.expected_luggage && (
           <InfoRow icon={<Luggage className="size-3.5" />} label={request.expected_luggage} />

@@ -63,7 +63,7 @@ export function AppSidebar() {
             G
           </div>
           <span className="text-[15px] font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-            Gafra Admin
+            Ghafra Admin
           </span>
         </Link>
       </SidebarHeader>

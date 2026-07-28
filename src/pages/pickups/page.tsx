@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Loader2, Car } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { DashboardLayout } from '../../components/dashboard-layout';
 import { pickupApi } from '../../api/pickupApi';
 import { PickupCard } from './components/PickupCard';
 import { PickupFiltersBar } from './components/PickupFiltersBar';
@@ -70,18 +71,10 @@ export default function PickupsPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Car className="size-4.5" />
-        </div>
-        <div>
-          <h1 className="text-lg font-semibold text-foreground">Pickup Matching</h1>
-          <p className="text-sm text-muted-foreground">
-            Pair arriving students with an existing member to meet them at the station.
-          </p>
-        </div>
-      </div>
+    <DashboardLayout title="Pickup Matching" breadcrumbs={[{ label: 'Pickup Matching' }]}>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Pair arriving students with an existing member to meet them at the station.
+      </p>
 
       <div className="mb-5">
         <PickupFiltersBar status={status} gare={gare} onStatus={setStatus} onGare={setGare} />
@@ -116,6 +109,6 @@ export default function PickupsPage() {
         onClose={() => setAssignTarget(null)}
         onConfirm={handleConfirmAssign}
       />
-    </div>
+    </DashboardLayout>
   );
 }

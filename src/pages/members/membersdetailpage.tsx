@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { Switch }          from '../../components/ui/switch';
 import { Label }           from '../../components/ui/label';
 import {
-  ArrowLeft, Mail, Phone,
+  ArrowLeft, Mail, MessageCircle,
   Briefcase, ShieldCheck, Trash2, Edit2,
 } from 'lucide-react';
 import { useMember }       from '../../hooks/useMembers';
 import { membersApi } from '../../api/members';
+import { whatsappUrl } from '../../utils/phone';
 import {
   getInitials, getVerifiedConfig, getRoleConfig,
   formatPhone, formatDate, formatMemberSince,
@@ -89,6 +90,12 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 
   const vc = getVerifiedConfig(member.is_verified);
   const rc = getRoleConfig(member.role);
+
+  // Ghana/France WhatsApp links — same normalization used across the
+  // pickup pages, so "0…", "233…", "+233…" (and the FR equivalents) all
+  // resolve to the same correct wa.me link regardless of how it was typed.
+  const ghanaWhatsapp  = whatsappUrl(member.ghana_phone,  'GH');
+  const franceWhatsapp = whatsappUrl(member.french_phone, 'FR');
 
   const handleToggleVerify = async (checked: boolean) => {
     setVerifying(true);
@@ -211,29 +218,55 @@ const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
               </a>
 
               {member.ghana_phone && (
-                <a href={`tel:${member.ghana_phone}`}
-                  className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
-                  <div className="rounded-lg bg-emerald-500/10 p-2">
-                    <Phone className="size-4 text-emerald-500" />
+                ghanaWhatsapp ? (
+                  <a href={ghanaWhatsapp} target="_blank" rel="noreferrer"
+                    title="Message on WhatsApp"
+                    className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-[#25D366]/10 transition-colors">
+                    <div className="rounded-lg bg-[#25D366]/15 p-2">
+                      <MessageCircle className="size-4 text-[#1DA851]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">🇬🇭 Ghana · WhatsApp</p>
+                      <p className="text-sm font-medium">{formatPhone(member.ghana_phone)}</p>
+                    </div>
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <div className="rounded-lg bg-muted p-2">
+                      <MessageCircle className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">🇬🇭 Ghana</p>
+                      <p className="text-sm font-medium">{formatPhone(member.ghana_phone)}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">🇬🇭 Ghana</p>
-                    <p className="text-sm font-medium">{formatPhone(member.ghana_phone)}</p>
-                  </div>
-                </a>
+                )
               )}
 
               {member.french_phone && (
-                <a href={`tel:${member.french_phone}`}
-                  className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
-                  <div className="rounded-lg bg-blue-500/10 p-2">
-                    <Phone className="size-4 text-blue-500" />
+                franceWhatsapp ? (
+                  <a href={franceWhatsapp} target="_blank" rel="noreferrer"
+                    title="Message on WhatsApp"
+                    className="flex items-center gap-3 rounded-lg border border-border p-3 hover:bg-[#25D366]/10 transition-colors">
+                    <div className="rounded-lg bg-[#25D366]/15 p-2">
+                      <MessageCircle className="size-4 text-[#1DA851]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">🇫🇷 France · WhatsApp</p>
+                      <p className="text-sm font-medium">{formatPhone(member.french_phone)}</p>
+                    </div>
+                  </a>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-lg border border-border p-3">
+                    <div className="rounded-lg bg-muted p-2">
+                      <MessageCircle className="size-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs text-muted-foreground">🇫🇷 France</p>
+                      <p className="text-sm font-medium">{formatPhone(member.french_phone)}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">🇫🇷 France</p>
-                    <p className="text-sm font-medium">{formatPhone(member.french_phone)}</p>
-                  </div>
-                </a>
+                )
               )}
             </CardContent>
           </Card>
