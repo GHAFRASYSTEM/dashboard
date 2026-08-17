@@ -1,5 +1,7 @@
-import { Phone, Train, MapPin, Luggage, UserPlus, CheckCircle2, XCircle, MessageCircle, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { Phone, Train, MapPin, Luggage, UserPlus, CheckCircle2, XCircle, MessageCircle, Mail, AlertTriangle, Clock, ZoomIn } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
+import { ImageLightbox } from './ImageLightbox';
 import { whatsappUrl } from '../../../utils/phone';
 import type { PickupRequest } from '../types/pickup';
 
@@ -10,20 +12,84 @@ type Props = {
   onCancel:   () => void;
 };
 
+type Urgency = 'overdue' | 'soon' | null;
+
+function getUrgency(request: PickupRequest): Urgency {
+  // Only flag requests that still need action — completed/cancelled don't matter here.
+  if (request.status !== 'pending' && request.status !== 'assigned') return null;
+
+  const arrival = new Date(`${request.arrival_date}T${request.arrival_time}`);
+  if (Number.isNaN(arrival.getTime())) return null;
+
+  const diffMs = arrival.getTime() - Date.now();
+  if (diffMs < 0) return 'overdue';
+  if (diffMs <= 24 * 60 * 60 * 1000) return 'soon';
+  return null;
+}
+
+function UrgencyBadge({ urgency }: { urgency: Urgency }) {
+  if (urgency === 'overdue') {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+        <AlertTriangle className="size-3" /> Overdue
+      </span>
+    );
+  }
+  if (urgency === 'soon') {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-600">
+        <Clock className="size-3" /> Within 24h
+      </span>
+    );
+  }
+  return null;
+}
+
 export function PickupCard({ request, onAssign, onComplete, onCancel }: Props) {
   const student   = request.student;
   const volunteer = request.volunteer;
+  const urgency   = getUrgency(request);
+
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [lightboxAlt, setLightboxAlt] = useState<string | undefined>(undefined);
+
+  const openLightbox = (src: string, alt: string) => {
+    setLightboxSrc(src);
+    setLightboxAlt(alt);
+  };
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div
+      className={`rounded-2xl border p-5 transition-colors ${
+        urgency === 'overdue'
+          ? 'border-destructive/30 bg-destructive/5'
+          : urgency === 'soon'
+          ? 'border-amber-500/30 bg-amber-500/5'
+          : 'border-border bg-card'
+      }`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-semibold text-primary">
+          <button
+            type="button"
+            onClick={() => student?.photo_url && openLightbox(student.photo_url, student.name)}
+            className={`group relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-semibold text-primary ${
+              student?.photo_url ? 'cursor-pointer' : 'cursor-default'
+            }`}
+            title={student?.photo_url ? 'View photo' : undefined}
+          >
             {student?.photo_url
-              ? <img src={student.photo_url} alt={student.name} className="size-full object-cover" />
+              ? (
+                <>
+                  <img src={student.photo_url} alt={student.name} className="size-full object-cover" />
+                  <span className="absolute inset-0 hidden items-center justify-center bg-black/40 group-hover:flex">
+                    <ZoomIn className="size-3.5 text-white" />
+                  </span>
+                </>
+              )
               : (student?.name?.[0] ?? '?').toUpperCase()
             }
-          </div>
+          </button>
           <div>
             <p className="text-sm font-semibold text-foreground">{student?.name ?? 'Unknown member'}</p>
             <p className="text-xs text-muted-foreground">{student?.email}</p>
@@ -55,17 +121,40 @@ export function PickupCard({ request, onAssign, onComplete, onCancel }: Props) {
         )}
       </div>
 
-      <p className="mt-3 text-xs font-medium text-muted-foreground">
-        Arriving {request.arrival_date} at {request.arrival_time}
-      </p>
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">
+          Arriving {request.arrival_date} at {request.arrival_time}
+        </p>
+        <UrgencyBadge urgency={urgency} />
+      </div>
 
       {(request.photo_signed_url || request.ticket_signed_url) && (
         <div className="mt-3 flex gap-2">
           {request.photo_signed_url && (
-            <img src={request.photo_signed_url} alt="Student" className="h-16 w-16 rounded-lg border border-border object-cover" />
+            <button
+              type="button"
+              onClick={() => openLightbox(request.photo_signed_url!, 'Student photo')}
+              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border"
+              title="View photo"
+            >
+              <img src={request.photo_signed_url} alt="Student" className="size-full object-cover" />
+              <span className="absolute inset-0 hidden items-center justify-center bg-black/40 group-hover:flex">
+                <ZoomIn className="size-4 text-white" />
+              </span>
+            </button>
           )}
           {request.ticket_signed_url && (
-            <img src={request.ticket_signed_url} alt="Ticket" className="h-16 w-16 rounded-lg border border-border object-cover" />
+            <button
+              type="button"
+              onClick={() => openLightbox(request.ticket_signed_url!, 'Ticket')}
+              className="group relative h-16 w-16 overflow-hidden rounded-lg border border-border"
+              title="View ticket"
+            >
+              <img src={request.ticket_signed_url} alt="Ticket" className="size-full object-cover" />
+              <span className="absolute inset-0 hidden items-center justify-center bg-black/40 group-hover:flex">
+                <ZoomIn className="size-4 text-white" />
+              </span>
+            </button>
           )}
         </div>
       )}
@@ -147,6 +236,8 @@ export function PickupCard({ request, onAssign, onComplete, onCancel }: Props) {
           </button>
         )}
       </div>
+
+      <ImageLightbox src={lightboxSrc} alt={lightboxAlt} onClose={() => setLightboxSrc(null)} />
     </div>
   );
 }

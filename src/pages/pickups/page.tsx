@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { pickupApi } from '../../api/pickupApi';
 import { PickupCard } from './components/PickupCard';
-import { PickupFiltersBar } from './components/PickupFiltersBar';
+import { PickupFiltersBar, type SortDir } from './components/PickupFiltersBar';
 import { AssignMemberModal } from './components/AssignMemberModal';
 import type { PickupRequest, PickupStatus, Gare } from './types/pickup';
 
@@ -12,6 +12,7 @@ export default function PickupsPage() {
   const [loading, setLoading]   = useState(true);
   const [status, setStatus]     = useState<PickupStatus | 'all'>('pending');
   const [gare, setGare]         = useState<Gare | 'all'>('all');
+  const [sortDir, setSortDir]   = useState<SortDir>('asc');
 
   const [assignTarget, setAssignTarget] = useState<PickupRequest | null>(null);
   const [submitting, setSubmitting]     = useState(false);
@@ -32,6 +33,13 @@ export default function PickupsPage() {
   }, [status, gare]);
 
   useEffect(() => { load(); }, [load]);
+
+  const sortedRequests = useMemo(() => {
+    const withTime = (r: PickupRequest) => new Date(`${r.arrival_date}T${r.arrival_time}`).getTime();
+    return [...requests].sort((a, b) =>
+      sortDir === 'asc' ? withTime(a) - withTime(b) : withTime(b) - withTime(a)
+    );
+  }, [requests, sortDir]);
 
   const handleConfirmAssign = async (memberId: string, note: string) => {
     if (!assignTarget) return;
@@ -77,20 +85,27 @@ export default function PickupsPage() {
       </p>
 
       <div className="mb-5">
-        <PickupFiltersBar status={status} gare={gare} onStatus={setStatus} onGare={setGare} />
+        <PickupFiltersBar
+          status={status}
+          gare={gare}
+          sortDir={sortDir}
+          onStatus={setStatus}
+          onGare={setGare}
+          onSort={setSortDir}
+        />
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" /> Loading requests…
         </div>
-      ) : requests.length === 0 ? (
+      ) : sortedRequests.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
           No pickup requests match these filters.
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-          {requests.map(r => (
+          {sortedRequests.map(r => (
             <PickupCard
               key={r.id}
               request={r}
