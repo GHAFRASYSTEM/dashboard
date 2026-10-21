@@ -9,8 +9,10 @@ import {
   DollarSign,
   Briefcase,
   LogOut,
+  Wallet,
 } from 'lucide-react'
 import { useAuth } from '../../context/auth-context'
+import { isFinanceAdmin } from '../pages/finance/utils/finance-access'
 import {
   Sidebar,
   SidebarContent,
@@ -41,10 +43,14 @@ const managementItems = [
     { title: 'Pickup', href: '/pickup', icon: ShoppingBag },
 ]
 
+// Only shown to admins; the backend enforces 403 regardless.
+const financeItem = { title: 'Finance', href: '/finance', icon: Wallet }
+
 export function AppSidebar() {
   const location = useLocation()
   const pathname = location.pathname
   const { user, signOut } = useAuth()
+  const visibleManagementItems = isFinanceAdmin(user) ? [...managementItems, financeItem] : managementItems
 
   const userInitials = (user?.name ?? 'Admin User')
     .split(' ')
@@ -107,7 +113,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
-              {managementItems.map((item) => (
+              {visibleManagementItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild

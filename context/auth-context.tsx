@@ -17,6 +17,7 @@ type AuthContextValue = {
   isReady: boolean
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -42,6 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json()
         setUser(data.data ?? data) // adjust to your ok() shape
+      } else {
+        // Valid Supabase session but backend doesn't recognise us (yet)
+        console.error('/auth/me failed with status', res.status)
+        setUser(null)
       }
     } catch {
       // If /me fails, fall back to Supabase user metadata
@@ -77,14 +82,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const refreshUser = useCallback(async () => {
+    const { data } = await supabase.auth.getSession()
+    await syncSession(data.session)
+  }, [syncSession])
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     // onAuthStateChange fires with null → syncSession clears state
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, session, isAuthenticated: Boolean(user), isReady, signInWithGoogle, signOut }),
-    [user, session, isReady, signInWithGoogle, signOut],
+    () => ({ user, session, isAuthenticated: Boolean(user), isReady, signInWithGoogle, signOut, refreshUser }),
+    [user, session, isReady, signInWithGoogle, signOut, refreshUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
