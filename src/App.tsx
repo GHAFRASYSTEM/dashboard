@@ -16,13 +16,22 @@ import PickupsPage from './pages/pickups/page'
 import { ProtectedRoute } from './auth/protected-route'
 import AuthCallback from './auth/AuthCallback'
 import RoomRequestsPage from './pages/housing/RoomRequestsPage'
+import AttendancePage from './pages/attendance/page'
+import AttendancePreview from './pages/attendance/preview'
+
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/auth/login" element={<LoginPage />} />
+      {import.meta.env.DEV && (
+        <Route
+           path="/attendance-preview"
+          element={<AttendancePreview />}
+       />
+    )}
 
-      <Route element={<ProtectedRoute />}>
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
@@ -35,6 +44,7 @@ export default function App() {
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />
+        <Route path="/attendance" element={<AttendancePage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path='/pickup' element={<PickupsPage/>}/>
         <Route path="/trends/:id" element={<TrendDetailPage />} />
