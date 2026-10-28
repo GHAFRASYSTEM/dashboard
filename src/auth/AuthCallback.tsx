@@ -2,9 +2,11 @@ import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { adminGoogleSignIn } from '../api/auth'
+import { useAuth } from '../../context/auth-context'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
+  const { refreshUser } = useAuth()
   const ran = useRef(false)
 
   useEffect(() => {
@@ -22,6 +24,7 @@ export default function AuthCallback() {
 
       try {
         await adminGoogleSignIn(data.session.access_token)
+        await refreshUser()
 
         navigate('/', { replace: true })
       } catch (err) {
@@ -36,7 +39,7 @@ export default function AuthCallback() {
     }
 
     handleCallback()
-  }, [navigate])
+  }, [navigate, refreshUser])
 
   return (
     <div className="grid min-h-screen place-items-center gap-3">
