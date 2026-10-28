@@ -29,7 +29,8 @@ export default function App() {
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
 
-      <Route element={<ProtectedRoute />}>
+        <Route path="/auth/login" element={<LoginPage />} />
+        <Route element={<ProtectedRoute />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
         <Route path="/contributions" element={<ContributionsPage />} />
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />
+        <Route path="/attendance" element={<AttendancePage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path='/pickup' element={<PickupsPage/>}/>
         <Route path="/trends/:id" element={<TrendDetailPage />} />
