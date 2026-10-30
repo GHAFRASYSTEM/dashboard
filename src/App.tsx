@@ -16,12 +16,14 @@ import PickupsPage from './pages/pickups/page'
 import { ProtectedRoute } from './auth/protected-route'
 import AuthCallback from './auth/AuthCallback'
 import RoomRequestsPage from './pages/housing/RoomRequestsPage'
+import AttendancePage from './pages/attendance/page'
 import { FinanceAdminRoute } from './pages/finance/components/finance-states'
 import FinancePage from './pages/finance/page'
 import FinanceRecordsPage from './pages/finance/records/page'
 import NewFinanceRecordPage from './pages/finance/records/new/page'
 import FinanceRecordDetailPage from './pages/finance/records/[id]/page'
 import EditFinanceRecordPage from './pages/finance/records/[id]/edit/page'
+import { OpportunitiesAdminRoute } from './pages/internships/components/opportunities-states'
 
 export default function App() {
   return (
@@ -39,7 +41,9 @@ export default function App() {
         <Route path="/housing/:id" element={<HousingDetailPage />} />
         <Route path="/housing/requests"  element={<RoomRequestsPage />} />
 
-        <Route path="/internships" element={<InternshipsPage />} />
+        <Route element={<OpportunitiesAdminRoute />}>
+          <Route path="/internships" element={<InternshipsPage />} />
+        </Route>
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />
         <Route path="/attendance" element={<AttendancePage />} />
