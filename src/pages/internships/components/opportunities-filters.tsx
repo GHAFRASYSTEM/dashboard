@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MapPin, Plus, Search } from 'lucide-react'
+import { ArrowUpDown, MapPin, Plus, Search } from 'lucide-react'
 import { Button } from '../../../components/ui/button'
 import { Card } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../../components/ui/select'
-import { statusFilterOptions } from '../utils/opportunity-config'
+import { sortOptions, statusFilterOptions } from '../utils/opportunity-config'
 import type { StatusFilter } from '../utils/opportunity-config'
 
 interface Props {
@@ -22,6 +22,8 @@ interface Props {
   onTypeChange: (value: string) => void
   status: StatusFilter
   onStatusChange: (value: StatusFilter) => void
+  sort: string
+  onSortChange: (value: string) => void
   onAdd: () => void
 }
 
@@ -51,6 +53,8 @@ export function OpportunitiesFilters({
   onTypeChange,
   status,
   onStatusChange,
+  sort,
+  onSortChange,
   onAdd,
 }: Props) {
   const [searchDraft, setSearchDraft] = useDebouncedInput(search, onSearchChange)
@@ -101,6 +105,20 @@ export function OpportunitiesFilters({
             </SelectTrigger>
             <SelectContent className="border-border bg-popover">
               {statusFilterOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sort} onValueChange={onSortChange}>
+            <SelectTrigger aria-label="Sort by" className="w-full border-border bg-secondary sm:w-[200px]">
+              <ArrowUpDown className="size-4 text-muted-foreground" />
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent className="border-border bg-popover">
+              {sortOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

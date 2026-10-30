@@ -90,10 +90,16 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState('')
   const [pending, setPending] = useState<false | 'save' | 'publish'>(false)
+  // Set after a 409: someone changed the listing's status while this form was open.
+  const [conflict, setConflict] = useState(false)
+  const [reloading, setReloading] = useState(false)
+  // Bumped when the latest version is loaded, so the location and phone fields start over from it.
+  const [revision, setRevision] = useState(0)
   const deadlineRef = useRef<HTMLInputElement>(null)
 
   const dirty = JSON.stringify(values) !== JSON.stringify(baseline)
   const isLive = current?.status === 'published'
+  const isArchived = current?.status === 'archived'
   const canPublish = !current || current.status === 'draft' || current.status === 'closed'
 
   function update<K extends keyof OpportunityFormValues>(key: K, value: OpportunityFormValues[K]) {
@@ -150,7 +156,31 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
     if (details.code === 'DEADLINE_PASSED') issues.application_deadline = details.message
     setFieldErrors(issues)
     setError(prefix + (Object.keys(issues).length > 0 && !prefix ? 'Please fix the highlighted fields.' : details.message))
+    setConflict(details.status === 409)
     if (details.status === 409) onChanged()
+  }
+
+  // Replaces the form with the listing as it is now on the server (GET /opportunities/admin/:id).
+  async function loadLatest() {
+    if (!current) return
+    if (dirty && !window.confirm('Load the latest version? Your unsaved changes in this form will be lost.')) return
+    setReloading(true)
+    try {
+      const fresh = await opportunitiesApi.getOne(current.id)
+      const next = toFormValues(fresh)
+      setCurrent(fresh)
+      setBaseline(next)
+      setValues(next)
+      setFieldErrors({})
+      setError('')
+      setConflict(false)
+      setRevision((value) => value + 1)
+      onChanged()
+    } catch (nextError) {
+      setError(getOpportunityError(nextError).message)
+    } finally {
+      setReloading(false)
+    }
   }
 
   async function submit(publish: boolean) {
@@ -161,6 +191,7 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
     }
     setFieldErrors(errors)
     setError('')
+    setConflict(false)
     if (Object.keys(errors).length > 0) {
       setError('Please fix the highlighted fields.')
       return
@@ -245,6 +276,12 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
                 This listing is live. Saved changes reach members immediately.
               </div>
             )}
+            {isArchived && (
+              <div className="flex items-start gap-2 rounded-md border border-border bg-muted p-3 text-sm text-muted-foreground">
+                <Info className="mt-0.5 size-4 shrink-0" />
+                This listing has been archived, so it can no longer be edited or published.
+              </div>
+            )}
 
             <fieldset className="grid gap-2">
               <legend className="mb-2 text-sm font-medium">Type</legend>
@@ -285,6 +322,7 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
                 error={fieldErrors.location}
               >
                 <LocationField
+                  key={`location-${revision}`}
                   id="location"
                   value={values.location}
                   onChange={(next) => update('location', next)}
@@ -413,6 +451,7 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
                 >
                   <Suspense fallback={<Input id="contact_phone" disabled placeholder="Loading…" className="border-border bg-secondary" />}>
                     <PhoneField
+                      key={`phone-${revision}`}
                       id="contact_phone"
                       value={values.contact_phone}
                       onChange={(next) => update('contact_phone', next)}
@@ -428,19 +467,31 @@ export function OpportunityFormDialog({ open, opportunity, onOpenChange, onSaved
 
           <DialogFooter className="mt-2 flex-col gap-3 border-t border-border bg-card pt-4 sm:flex-row sm:items-center">
             {error && (
-              <p role="alert" className="text-sm text-destructive sm:mr-auto">
-                {error}
-              </p>
+              <div role="alert" className="flex flex-col items-start gap-1 text-sm text-destructive sm:mr-auto">
+                <p>{error}</p>
+                {conflict && current && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0"
+                    onClick={() => void loadLatest()}
+                    disabled={reloading}
+                  >
+                    {reloading ? 'Loading…' : 'Load latest version'}
+                  </Button>
+                )}
+              </div>
             )}
             <div className="flex flex-col-reverse gap-2 sm:ml-auto sm:flex-row">
               <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={Boolean(pending)}>
                 Cancel
               </Button>
-              <Button type="submit" variant={canPublish ? 'outline' : 'default'} disabled={Boolean(pending) || (Boolean(current) && !dirty)}>
+              <Button type="submit" variant={canPublish ? 'outline' : 'default'} disabled={Boolean(pending) || reloading || isArchived || (Boolean(current) && !dirty)}>
                 {pending === 'save' ? 'Saving…' : current ? 'Save changes' : 'Save as draft'}
               </Button>
               {canPublish && (
-                <Button type="button" onClick={() => void submit(true)} disabled={Boolean(pending)}>
+                <Button type="button" onClick={() => void submit(true)} disabled={Boolean(pending) || reloading}>
                   {pending === 'publish' ? 'Publishing…' : current ? 'Save & publish' : 'Publish now'}
                 </Button>
               )}

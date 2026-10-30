@@ -84,6 +84,18 @@ export const statusFilterParams: Record<StatusFilter, Pick<OpportunityFilters, '
   archived: { status: 'archived' },
 }
 
+// Values are "<sort_by>:<sort_order>" for /opportunities/admin. Listings without the field sort last.
+export const DEFAULT_SORT = 'created_at:desc'
+
+export const sortOptions: { value: string; label: string }[] = [
+  { value: 'created_at:desc', label: 'Newest first' },
+  { value: 'created_at:asc', label: 'Oldest first' },
+  { value: 'updated_at:desc', label: 'Recently updated' },
+  { value: 'published_at:desc', label: 'Recently published' },
+  { value: 'application_deadline:asc', label: 'Deadline: soonest first' },
+  { value: 'title:asc', label: 'Title A–Z' },
+]
+
 // Allowed transitions, mirroring the backend state machine. Archived is final.
 export const canEdit = (item: Opportunity) => item.status !== 'archived'
 export const canPublish = (item: Opportunity) => item.status === 'draft' || item.status === 'closed'

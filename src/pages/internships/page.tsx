@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { DashboardLayout } from '../../components/dashboard-layout'
 import { Button } from '../../components/ui/button'
@@ -15,8 +15,14 @@ import { OpportunitiesTable } from './components/opportunities-table'
 import { OpportunityActionDialog } from './components/opportunity-action-dialog'
 import { OpportunityFormDialog } from './components/opportunity-form-dialog'
 import { OpportunityPreviewDialog } from './components/opportunity-preview-dialog'
-import type { Opportunity, OpportunityAction, OpportunityFilters, OpportunityType } from './types/opportunity'
-import { statusFilterOptions, statusFilterParams } from './utils/opportunity-config'
+import type {
+  Opportunity,
+  OpportunityAction,
+  OpportunityFilters,
+  OpportunitySortField,
+  OpportunityType,
+} from './types/opportunity'
+import { DEFAULT_SORT, sortOptions, statusFilterOptions, statusFilterParams } from './utils/opportunity-config'
 import type { StatusFilter } from './utils/opportunity-config'
 import { getOpportunityError } from './utils/opportunity-errors'
 
@@ -39,30 +45,34 @@ export default function InternshipsPage() {
   const paramsKey = params.toString()
 
   // Filters live in the URL so they survive reloads and can be shared.
-  const { search, location, type, status, page } = useMemo(() => {
+  const { search, location, type, status, sort, page } = useMemo(() => {
     const read = new URLSearchParams(paramsKey)
     const typeParam = read.get('type')
     const statusParam = read.get('status')
+    const sortParam = `${read.get('sort_by')}:${read.get('sort_order')}`
     return {
       search: read.get('search') ?? '',
       location: read.get('location') ?? '',
       type: (typeParam === 'job' || typeParam === 'internship' ? typeParam : 'all') as OpportunityType | 'all',
       status: (statusFilterOptions.some((option) => option.value === statusParam) ? statusParam : 'all') as StatusFilter,
+      sort: sortOptions.some((option) => option.value === sortParam) ? sortParam : DEFAULT_SORT,
       page: Math.max(1, Number(read.get('page')) || 1),
     }
   }, [paramsKey])
 
-  const filters = useMemo<OpportunityFilters>(
-    () => ({
+  const filters = useMemo<OpportunityFilters>(() => {
+    const [sortBy, sortOrder] = sort.split(':') as [OpportunitySortField, 'asc' | 'desc']
+    return {
       search: search.trim() || undefined,
       location: location.trim() || undefined,
       type: type === 'all' ? undefined : type,
       ...statusFilterParams[status],
+      sort_by: sortBy,
+      sort_order: sortOrder,
       page,
       limit: PAGE_SIZE,
-    }),
-    [search, location, type, status, page],
-  )
+    }
+  }, [search, location, type, status, sort, page])
   const hasFilters = Boolean(filters.search || filters.location || filters.type || status !== 'all')
 
   const { opportunities, meta, loading, error, refetch } = useOpportunitiesList(filters)
@@ -94,6 +104,25 @@ export default function InternshipsPage() {
     },
     [setParams],
   )
+  // The default order stays out of the URL; any other choice is kept like the filters.
+  function setSort(value: string) {
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        const [sortBy, sortOrder] = value.split(':')
+        if (value === DEFAULT_SORT) {
+          next.delete('sort_by')
+          next.delete('sort_order')
+        } else {
+          next.set('sort_by', sortBy)
+          next.set('sort_order', sortOrder)
+        }
+        next.delete('page')
+        return next
+      },
+      { replace: true },
+    )
+  }
   const onSearchChange = useCallback((value: string) => setFilter('search', value), [setFilter])
   const onLocationChange = useCallback((value: string) => setFilter('location', value), [setFilter])
   const clearFilters = () => setParams({}, { replace: true })
@@ -108,6 +137,34 @@ export default function InternshipsPage() {
     void refetch()
     void refetchCounts()
   }, [refetch, refetchCounts])
+
+  const detailsRequest = useRef<AbortController | null>(null)
+  useEffect(() => () => detailsRequest.current?.abort(), [])
+
+  // Shows the row straight away, then swaps in the latest version from GET /opportunities/admin/:id.
+  function openDetails(item: Opportunity) {
+    setViewing(item)
+    detailsRequest.current?.abort()
+    const request = new AbortController()
+    detailsRequest.current = request
+    opportunitiesApi
+      .getOne(item.id, request.signal)
+      .then((fresh) => {
+        if (request.signal.aborted) return
+        setViewing((current) => (current?.id === fresh.id ? fresh : current))
+        // Someone changed it since the list loaded, so refresh the list as well.
+        if (fresh.updated_at !== item.updated_at) refreshAll()
+      })
+      .catch((nextError) => {
+        if (request.signal.aborted) return
+        const details = getOpportunityError(nextError)
+        if (details.status === 404) {
+          setViewing(null)
+          toast({ variant: 'destructive', title: 'Listing not found', description: details.message })
+          refreshAll()
+        }
+      })
+  }
 
   function openForm(item: Opportunity | null) {
     setViewing(null)
@@ -164,6 +221,8 @@ export default function InternshipsPage() {
           onTypeChange={(value) => setFilter('type', value)}
           status={status}
           onStatusChange={(value) => setFilter('status', value)}
+          sort={sort}
+          onSortChange={setSort}
           onAdd={() => openForm(null)}
         />
 
@@ -181,7 +240,7 @@ export default function InternshipsPage() {
               <div className={loading ? 'opacity-60 transition-opacity' : undefined}>
                 <OpportunitiesTable
                   opportunities={opportunities}
-                  onView={setViewing}
+                  onView={openDetails}
                   onEdit={openForm}
                   onAction={(item, action) => setActionTarget({ item, action })}
                 />
