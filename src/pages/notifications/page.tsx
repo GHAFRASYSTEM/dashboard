@@ -52,7 +52,7 @@ const TEMPLATES: { label: string; icon: typeof Bell; category: NotificationCateg
 const AUTOMATIONS = [
   { icon: CalendarClock, title: 'Meeting countdown', text: 'Daily for the 7 days before each meeting, at a random time between 09:00 and 20:00. On the day, a special “Today is GHAFRA Meeting” push + email at 08:00.' },
   { icon: MapPin, title: 'Attendance', text: '30 min before start (everyone) · the moment check-in opens: “GHAFRA meeting ongoing” push + email · mid-meeting and 10 min before close, to members who haven’t signed.' },
-  { icon: CreditCard, title: 'Dues', text: 'On each of the last 3 days of the month at 10:00, push + email to members who haven’t paid that month. Months paid in advance are skipped.' },
+  { icon: CreditCard, title: 'Dues', text: 'To members who haven’t paid this month: push every Monday, Wednesday and Friday at 09:00, then daily (push + email) during the last 7 days of the month. Months paid in advance are skipped.' },
   { icon: Megaphone, title: 'News & updates', text: 'Every new announcement is pushed to all members right away.' },
   { icon: GraduationCap, title: 'French practice', text: 'Every day at 19:00, members who haven’t practised yet get a friendly nudge.' },
 ]
