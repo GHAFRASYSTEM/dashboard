@@ -17,6 +17,8 @@ import { ProtectedRoute } from './auth/protected-route'
 import AuthCallback from './auth/AuthCallback'
 import RoomRequestsPage from './pages/housing/RoomRequestsPage'
 import AttendancePage from './pages/attendance/page'
+import NotificationsPage from './pages/notifications/page'
+import SettingsPage from './pages/settings/page'
 import { FinanceAdminRoute } from './pages/finance/components/finance-states'
 import FinancePage from './pages/finance/page'
 import FinanceRecordsPage from './pages/finance/records/page'
@@ -47,6 +49,8 @@ export default function App() {
         <Route path="/marketing" element={<MarketingPage />} />
         <Route path="/members" element={<MembersPage />} />
         <Route path="/attendance" element={<AttendancePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/trends" element={<TrendsPage />} />
         <Route path='/pickup' element={<PickupsPage/>}/>
         <Route path="/trends/:id" element={<TrendDetailPage />} />

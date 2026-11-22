@@ -10,6 +10,9 @@ import {
   Briefcase,
   LogOut,
   Wallet,
+  BellRing,
+  ClipboardCheck,
+  Settings,
 } from 'lucide-react'
 import { useAuth } from '../../context/auth-context'
 import { isFinanceAdmin } from '../pages/finance/utils/finance-access'
@@ -38,7 +41,9 @@ const mainNavItems = [
 
 const managementItems = [
   { title: 'Members', href: '/members', icon: Users },
-  { title: 'Attendance', href: '/attendance', icon: Users },
+  { title: 'Attendance', href: '/attendance', icon: ClipboardCheck },
+  { title: 'Notifications', href: '/notifications', icon: BellRing },
+  { title: 'App Settings', href: '/settings', icon: Settings },
   { title: 'Contributions', href: '/contributions', icon: DollarSign },
     { title: 'Pickup', href: '/pickup', icon: ShoppingBag },
 ]
