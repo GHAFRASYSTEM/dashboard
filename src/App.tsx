@@ -61,7 +61,6 @@ export default function App() {
           <Route path="/finance/records/:id/edit" element={<EditFinanceRecordPage />} />
         </Route>
       </Route>
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
