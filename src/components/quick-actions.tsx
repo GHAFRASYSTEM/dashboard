@@ -28,9 +28,9 @@ const actions = [
     color: 'text-primary bg-primary/10',
   },
   {
-    label: 'Post Internship',
+    label: 'Post Opportunity',
     icon: Briefcase,
-    href: '/internships/new',
+    href: '/internships?new=1',
     color: 'text-amber-400 bg-amber-400/10',
   },
   {

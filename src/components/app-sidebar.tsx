@@ -10,6 +10,9 @@ import {
   Briefcase,
   LogOut,
   Wallet,
+  BellRing,
+  ClipboardCheck,
+  Settings,
 } from 'lucide-react'
 import { useAuth } from '../../context/auth-context'
 import { isFinanceAdmin } from '../pages/finance/utils/finance-access'
@@ -38,20 +41,22 @@ const mainNavItems = [
 
 const managementItems = [
   { title: 'Members', href: '/members', icon: Users },
-  { title: 'Attendance', href: '/attendance', icon: Users },
+  { title: 'Attendance', href: '/attendance', icon: ClipboardCheck },
+  { title: 'Notifications', href: '/notifications', icon: BellRing },
+  { title: 'App Settings', href: '/settings', icon: Settings },
   { title: 'Contributions', href: '/contributions', icon: DollarSign },
-  { title: 'Internships', href: '/internships', icon: Briefcase },
     { title: 'Pickup', href: '/pickup', icon: ShoppingBag },
 ]
 
 // Only shown to admins; the backend enforces 403 regardless.
+const opportunitiesItem = { title: 'Jobs & Internships', href: '/internships', icon: Briefcase }
 const financeItem = { title: 'Finance', href: '/finance', icon: Wallet }
 
 export function AppSidebar() {
   const location = useLocation()
   const pathname = location.pathname
   const { user, signOut } = useAuth()
-  const visibleManagementItems = isFinanceAdmin(user) ? [...managementItems, financeItem] : managementItems
+  const visibleManagementItems = isFinanceAdmin(user) ? [...managementItems, opportunitiesItem, financeItem] : managementItems
 
   const userInitials = (user?.name ?? 'Admin User')
     .split(' ')
