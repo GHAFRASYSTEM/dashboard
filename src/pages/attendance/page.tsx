@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
-  CalendarDays, CalendarPlus, Clock, KeyRound, Loader2, MapPin, MoreVertical, Pencil,
+  CalendarDays, CalendarPlus, Clock, Loader2, MapPin, MoreVertical, Pencil,
   Radio, RotateCcw, Trash2, TrendingUp, UserCheck, Users, XCircle,
 } from 'lucide-react'
 import { DashboardLayout } from '../../components/dashboard-layout'
@@ -15,7 +15,6 @@ import {
 } from '../../components/ui/dropdown-menu'
 import { attendanceApi, apiErrorMessage, type Meeting, type MeetingStatus, type MonthlySummary } from '../../api/attendanceApi'
 import { MeetingFormDialog } from './components/meeting-form-dialog'
-import { CodeDialog } from './components/code-dialog'
 import { RosterDialog } from './components/roster-dialog'
 import { formatMeetingDate, isoToParisTime, todayInParis } from './paris-time'
 
@@ -34,7 +33,6 @@ export default function AttendancePage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Meeting | null>(null)
-  const [codeFor, setCodeFor] = useState<Meeting | null>(null)
   const [rosterFor, setRosterFor] = useState<Meeting | null>(null)
 
   const load = useCallback(async () => {
@@ -69,7 +67,6 @@ export default function AttendancePage() {
       await attendanceApi.setActive(m.id, active)
       toast.success(active ? 'Check-in opened — members are being notified by push and email' : 'Check-in closed')
       await load()
-      if (active) setCodeFor(m)
     } catch (err) { toast.error(apiErrorMessage(err)) }
     finally { setBusy(null) }
   }
@@ -123,10 +120,9 @@ export default function AttendancePage() {
             </span>
             <div className="flex-1">
               <p className="font-semibold">Check-in is live: {live.title}</p>
-              <p className="text-sm text-muted-foreground">Members who haven't signed get automatic reminders mid-meeting and 10 minutes before check-in closes.</p>
+              <p className="text-sm text-muted-foreground">Members sign in from the app with their location — no code needed. Those who haven't signed get reminders mid-meeting and before check-in closes.</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setCodeFor(live)}><KeyRound className="mr-2 size-4" />Show code</Button>
               <Button onClick={() => setRosterFor(live)}><Users className="mr-2 size-4" />Live roster</Button>
             </div>
           </CardContent>
@@ -175,7 +171,6 @@ export default function AttendancePage() {
                       <DropdownMenuTrigger asChild><Button size="icon" variant="ghost"><MoreVertical className="size-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => { setEditing(m); setFormOpen(true) }}><Pencil className="mr-2 size-4" />Edit</DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setCodeFor(m)}><KeyRound className="mr-2 size-4" />Check-in code</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         {m.status === 'cancelled'
                           ? <DropdownMenuItem onClick={() => cancel(m, false)}><RotateCcw className="mr-2 size-4" />Restore</DropdownMenuItem>
@@ -211,9 +206,8 @@ export default function AttendancePage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         meeting={editing}
-        onSaved={saved => { load(); if (!editing && saved.check_in_code) setCodeFor(saved) }}
+        onSaved={() => load()}
       />
-      <CodeDialog meeting={codeFor} onOpenChange={o => !o && setCodeFor(null)} />
       <RosterDialog meeting={rosterFor} onOpenChange={o => !o && setRosterFor(null)} />
     </DashboardLayout>
   )
